@@ -16,21 +16,28 @@ def cat_matrices2D(mat1, mat2, axis=0):
 
     new_matrix = []
 
+    # Concatenate along axis 0 (vertical concatenation)
     if axis == 0:
+        # Check if the number of columns in both matrices is the same
         if len(mat1[0]) == len(mat2[0]):
             new_matrix = mat1 + mat2
             return new_matrix
         else:
+            # Return None if matrices have different number of columns
             return None
 
+    # Concatenate along axis 1 (horizontal concatenation)
     elif axis == 1:
+        # Check if the number of rows in both matrices is the same
         if len(mat1) == len(mat2):
+            # Iterate over rows and concatenate corresponding rows
             for i in range(len(mat1)):
-                new_row = mat1[i] + mat2[i]
-                new_matrix.append(new_row)
+                new_matrix.append(mat1[i] + mat2[i])
             return new_matrix
         else:
+            # Return None if matrices have different number of rows
             return None
 
+    # Return None for invalid axis
     else:
         return None
