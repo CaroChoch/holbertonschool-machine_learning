@@ -6,8 +6,8 @@ def add_matrices2D(mat1, mat2):
     """
     function that adds two matrices element-wise
         Arguments:
-            mat1: first array
-            mat2: second array
+            mat1: first matrix
+            mat2: second matrix
         Return:
             a new matrix if mat1 & mat2 are the same type/shape
             otherwise None
