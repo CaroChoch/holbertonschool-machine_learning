@@ -18,10 +18,8 @@ def summation_i_squared(n):
     if not type(n) == int and n > 0:
         return None
 
-    # Base case: when n is 1, return 1^2
-    if n == 1:
-        return 1
+    # Calculate the sum using the closed-form formula:
+    # (n(n+1)(2n+1))/6
+    sum_of_squares = (n * (n + 1) * (2 * n + 1)) // 6
 
-    # Recursive case: sum of squares up to n is
-    # n^2 + sum of squares up to n-1
-    return n**2 + summation_i_squared(n-1)
+    return sum_of_squares
