@@ -73,10 +73,10 @@ class Binomial:
         """
 
         # Check if k is a non-negative integer
-        if not isinstance(k, int) or k < 0:
+        if k < 0:
             return 0
         # If k is not an integer, convert it to an integer
-        if not isinstance(k, int):
+        if type(k) is not int:
             k = int(k)
 
         # Calculate the binomial coefficient with the factorial helper function
