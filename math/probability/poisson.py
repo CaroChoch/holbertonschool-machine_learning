@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Module containing a class Poisson that represents a poisson distribution """
+""" Module containing a class Poisson that represents a poisson distribution"""
 
 
 class Poisson:
@@ -12,7 +12,7 @@ class Poisson:
         Class constructor
         Arguments:
             data: list of the data to be used to estimate the distribution
-            lambtha: the expected number of occurences in a given time frame    
+            lambtha: the expected number of occurences in a given time frame
         """
 
         # Check if data is not provided (None)
