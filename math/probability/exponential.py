@@ -8,6 +8,8 @@ class Exponential:
     Class that represents an exponential distribution
     """
 
+    e_value = 2.7182818285
+
     def __init__(self, data=None, lambtha=1.):
         """
         class constructor function
@@ -45,11 +47,26 @@ class Exponential:
         Return: the PDF value for x, Otherwise 0 if x is out of range
         """
 
-        e_value = 2.7182818285
-
         # If x is out of range, return 0
         if x < 0:
             return 0
         # Calculates the value of the PDF
+        e_value = 2.7182818285
         pdf = self.lambtha * e_value ** (-self.lambtha * x)
         return pdf
+
+    def cdf(self, x):
+        """
+        Instance method to calculate the CDF
+        Argument:
+            x: the time period
+        Return: the CDF value for x
+        """
+
+        # Check if k is a non-negative value
+        if x < 0:
+            return 0
+
+        # calculates cdf
+        cdf = 1 - (self.e_value ** (-self.lambtha * x))
+        return cdf
