@@ -34,3 +34,44 @@ class Poisson:
             # If conditions are satisfied, calculate lambtha from data
             else:
                 self.lambtha = float(sum(data) / len(data))
+
+    def factorial(self, n):
+        """
+        helper function that calculates the factorial of a non-negative int
+        Argument:
+            n: a non-negative integer
+        Returns:
+            The factorial of n
+        """
+        if n == 0:
+            return 1
+        result = 1
+        for i in range(1, n+1):
+            result *= i
+        return result
+
+    def pmf(self, k):
+        """
+        Instance method that calculates the value of the PMF
+        for a given number of successes
+        Argument:
+            k: the number of successes
+        Return:
+            the PMF value for k
+        """
+
+        # Ensure k is an integer
+        if not isinstance(k, int):
+            k = int(k)
+        # Check if k is a non-negative value
+        if k < 0:
+            return 0
+
+        # Value of the mathematical constant e
+        e_value = 2.7182818285
+
+        # Calculate the PMF value using the Poisson distribution formula
+        pmf_value = (self.lambtha**k * e_value**(-self.lambtha) /
+                     self.factorial(k))
+
+        return pmf_value
