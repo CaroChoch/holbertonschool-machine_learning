@@ -87,3 +87,29 @@ class Binomial:
         pmf = binomial_coeff * (self.p ** k) * (1 - self.p)**(self.n - k)
 
         return pmf
+
+    def cdf(self, k):
+        """
+        Instance method that calculates the value of CDF for a given number
+        of successes
+        Argument:
+            k: number of successes
+        Return: the CDF value for k
+        """
+
+        # Check if k is a non-negative integer
+        if k < 0:
+            return 0
+        # If k is not an integer, convert it to an integer
+        if type(k) is not int:
+            k = int(k)
+
+        # Initialize CDF value to zero
+        cdf = 0
+
+        # Sum the PMF values for each success up to k
+        for i in range(k + 1):
+            cdf += self.pmf(i)
+
+        # Return the calculated CDF value
+        return cdf
