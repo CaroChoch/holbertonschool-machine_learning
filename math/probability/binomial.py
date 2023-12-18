@@ -75,6 +75,9 @@ class Binomial:
         # Check if k is a non-negative integer
         if not isinstance(k, int) or k < 0:
             return 0
+        # If k is not an integer, convert it to an integer
+        if not isinstance(k, int):
+            k = int(k)
 
         # Calculate the binomial coefficient with the factorial helper function
         binomial_coeff = self.factorial(self.n) / \
