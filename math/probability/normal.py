@@ -100,7 +100,7 @@ class Normal:
         # step 2: calculation of the approximation of the error function (erf)
         erf_approx = arg - (arg ** 3) / 3 + (arg ** 5) / 10 \
             - (arg ** 7) / 42 + (arg ** 9) / 216
-        
+
         # step 3: calculation of the error function (erf)
         erf = (2 / pi_value ** 0.5) * (erf_approx)
 
