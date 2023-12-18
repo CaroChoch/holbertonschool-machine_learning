@@ -40,3 +40,27 @@ class Normal:
                     # squares of the differences of each value from the mean.
                     variance += (data[i] - self.mean) ** 2
                 self.stddev = (variance / len(data)) ** (1 / 2)
+
+    def z_score(self, x):
+        """
+        instance method to calculate the z-score of a given x-value
+        argument:
+            x: the x-value
+        Return: the z-score of x
+        """
+
+        # z-score is the number of standard deviations from the
+        # mean for a particular value in a statistical distribution
+        z_score = (x - self.mean) / self.stddev
+        return z_score
+
+    def x_value(self, z):
+        """
+        Instance method to calculate the x-value of a given z-score
+        Argument:
+            z: the z-score
+        Return: the x-value of z
+        """
+
+        x_value = self.mean + z * self.stddev
+        return x_value
