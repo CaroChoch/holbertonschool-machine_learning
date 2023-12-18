@@ -75,3 +75,29 @@ class Poisson:
                      self.factorial(k))
 
         return pmf_value
+
+    def cdf(self, k):
+        """
+        instance method that calculates the value of CDF for a given
+        number of successes
+        Argument:
+            k: the number of successes
+        Return: the CDF value for k
+        """
+
+        # Ensure k is an integer
+        if not isinstance(k, int):
+            k = int(k)
+        # Check if k is a non-negative value
+        if k < 0:
+            return 0
+
+        # Initialize the cumulative distribution function (CDF) value to 0
+        cdf_value = 0
+        # Loop through each integer i from 0 to k (inclusive)
+        for i in range(k + 1):
+            # For each i, add the PMF value for i to the CDF
+            cdf_value += self.pmf(i)
+
+        # Return the calculated CDF value for the given number of successes k
+        return cdf_value
