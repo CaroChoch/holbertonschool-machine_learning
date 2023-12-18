@@ -82,3 +82,28 @@ class Normal:
 
         pdf = coeff * e_value**exponent
         return pdf
+
+    def cdf(self, x):
+        """
+        instance method that calculates the CDF of a given x-value
+        Argument:
+            x: the x-value
+        Return: the CDF value for x
+        """
+
+        pi_value = 3.1415926536
+
+        # step 1: calculation of the argument (arg)
+        # for the error function (erf)
+        arg = (x - self.mean) / (self.stddev * (2 ** 0.5))
+
+        # step 2: calculation of the approximation of the error function (erf)
+        erf_approx = arg - (arg ** 3) / 3 + (arg ** 5) / 10 \
+            - (arg ** 7) / 42 + (arg ** 9) / 216
+        
+        # step 3: calculation of the error function (erf)
+        erf = (2 / pi_value ** 0.5) * (erf_approx)
+
+        # calculate cdf
+        cdf = 0.5 * (1 + erf)
+        return cdf
