@@ -21,7 +21,7 @@ class Binomial:
             # If data is not provided, use n and p directly
             if n <= 0:
                 raise ValueError("n must be a positive value")
-            elif p < 0 or p > 1:
+            elif p <= 0 or p >= 1:
                 raise ValueError("p must be greater than 0 and less than 1")
 
             # Save n as an integer and p as a float
