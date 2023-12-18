@@ -49,3 +49,38 @@ class Binomial:
             # Save n as an integer and p as a float
             self.n = round(n)
             self.p = float(p)
+
+    def factorial(self, n):
+        """
+        Helper function that calculates the factorial for a given number n > 0
+        Argument:
+            n: number to factorialize
+        Return: the factorial of n
+        """
+        factorial = 1
+
+        for i in range(1, n + 1):
+            factorial *= i
+        return factorial
+
+    def pmf(self, k):
+        """
+        instance method that calculates the value of the PMF for a given
+        successes
+        Argument:
+            k: number of successes
+        return: the PMF value
+        """
+
+        # Check if k is a non-negative integer
+        if not isinstance(k, int) or k < 0:
+            return 0
+
+        # Calculate the binomial coefficient with the factorial helper function
+        binomial_coeff = self.factorial(self.n) / \
+            (self.factorial(k) * self.factorial(self.n - k))
+
+        # Calculate the PMF value using the binomial coefficient, p, and (1-p)
+        pmf = binomial_coeff * (self.p ** k) * (1 - self.p)**(self.n - k)
+
+        return pmf
