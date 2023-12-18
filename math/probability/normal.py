@@ -64,3 +64,21 @@ class Normal:
 
         x_value = self.mean + z * self.stddev
         return x_value
+
+    def pdf(self, x):
+        """
+        Instance method that calculates the value of the PDF
+        for a given x-value
+        Argument:
+            x: the x-value
+        Return: the PDF value for x
+        """
+
+        e_value = 2.7182818285
+        pi_value = 3.1415926536
+
+        coeff = 1 / (self.stddev * (2 * pi_value)**0.5)
+        exponent = -0.5 * ((x - self.mean) / self.stddev)**2
+
+        pdf = coeff * e_value**exponent
+        return pdf
