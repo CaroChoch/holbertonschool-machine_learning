@@ -19,7 +19,7 @@ class Neuron:
 
         # Check if nx is a positive integer
         if nx < 1:
-            raise ValueError("nx must be positive")
+            raise ValueError("nx must be a positive integer")
 
         # Initialize weights (W) with a random normal distribution
         self.W = np.random.normal(size=(1, nx))
