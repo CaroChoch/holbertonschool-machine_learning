@@ -20,7 +20,7 @@ class Neuron:
             raise ValueError("nx must be positive")
 
         # Initialize weights (W) with a random normal distribution
-        self.W = np.random.normal(0, 1, (1, nx))
+        self.W = np.random.normal(size=(1, nx))
         # Initialize bias (b) to 0
         self.b = 0
         # Initialize activated output (A) to 0
