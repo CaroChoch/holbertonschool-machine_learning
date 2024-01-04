@@ -2,15 +2,17 @@
 """
 Class Neuron that defines a single neuron performing binary classification
 """
-
-
 import numpy as np
 
 
 class Neuron:
     """ class representing a single neuron """
     def __init__(self, nx):
-        """ initializesd the neuron """
+        """
+        Initializesd the neuron
+        Argument:
+            nx (int): number of input features to the neuron
+        """
         # Check if nx is an integer
         if type(nx) is not int:
             raise TypeError("nx must be an integer")
