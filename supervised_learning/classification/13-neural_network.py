@@ -169,12 +169,12 @@ class NeuralNetwork:
         # Calculate number of examples
         m = Y.shape[1]
 
-        # Calculation of derivatives for the output layer
+        # Calculation of derivatives of the output layer
         dz2 = A2 - Y
         dw2 = np.matmul(dz2, A1.T) / m
         db2 = np.sum(dz2, axis=1, keepdims=True) / m
 
-        # Calculation of derivatives for the hidden layer
+        # Calculation of derivatives of the hidden layer
         dz1 = np.matmul(self.__W2.T, dz2) * (A1 * (1 - A1))
         dw1 = np.matmul(dz1, X.T) / m
         db1 = np.sum(dz1, axis=1, keepdims=True) / m
