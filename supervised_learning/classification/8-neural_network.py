@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Class Neuron that defines a neural network with one hidden layer performing
+Class NeuralNetwork that defines a neural network with one hidden layer performing
 binary classification
 """
 import numpy as np
