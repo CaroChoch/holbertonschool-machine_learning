@@ -96,4 +96,3 @@ class NeuralNetwork:
         return: private activated output
     """
         return self.__A2
-
