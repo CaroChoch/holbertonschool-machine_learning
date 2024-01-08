@@ -105,14 +105,14 @@ class NeuralNetwork:
         Return:
             Returns the private attributes __A1 and __A2, respectively
         """
-        # Calculate the dot product of X and W1 and add the bias for every
-        # hidden layer node
+        # Compute the dot product of X and W1, incorporating the bias
+        # into each node of the hidden layer
         z = np.matmul(self.__W1, X) + self.__b1
         # Apply sigmoid activation function
         self.__A1 = 1 / (1 + np.exp(-z))
 
-        # Calculate the dot product of the hidden layer output and W2
-        # and dd the bias for the output neuron
+        # Compute the dot product of A1 and W2, incorporating the bias
+        # into the output neuron
         z = np.matmul(self.__W2, self.__A1) + self.__b2
         # Apply sigmoid activation function
         self.__A2 = 1 / (1 + np.exp(-z))
