@@ -41,7 +41,7 @@ class DeepNeuralNetwork:
         self.cache = {}
 
         # Initialize weights and biases of the network
-        # based on He et al. method and activated outputs for each layer
+        # based on He et al. method and activated outputs of each layer
         # Initialize empty dictionary to hold weights and biases
         self.weights = {}
 
@@ -49,15 +49,15 @@ class DeepNeuralNetwork:
         for i in range(self.L):
             # Check if it's the first layer
             if i == 0:
-                # Initialize weights for the first layer using He et al. method
+                # Initialize weights of the first layer using He et al. method
                 self.weights["W" + str(i + 1)] = np.random.randn(
                     layers[i], nx) * np.sqrt(2/nx)
-                # Initialize biases for the first layer to zeros
+                # Initialize biases of the first layer to zeros
                 self.weights["b" + str(i + 1)] = np.zeros((layers[i], 1))
 
             else:
-                # Initialize weights for hidden layers using He et al. method
+                # Initialize weights of hidden layers using He et al. method
                 self.weights["W" + str(i + 1)] = np.random.randn(
                     layers[i], layers[i-1]) * np.sqrt(2/layers[i-1])
-                # Initialize biases for hidden layers to zeros
+                # Initialize biases of hidden layers to zeros
                 self.weights["b" + str(i + 1)] = np.zeros((layers[i], 1))
