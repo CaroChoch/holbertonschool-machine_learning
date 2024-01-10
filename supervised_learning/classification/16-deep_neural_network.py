@@ -26,9 +26,8 @@ class DeepNeuralNetwork:
         if nx < 1:
             raise ValueError("nx must be a positive integer")
 
-        # Check if layers is a list representing the number of nodes in each
-        # layer of the network
-        if type(layers) is not list or min(layers) < 1 or len(layers) == 0:
+        # Check if layers is not a list or if it is an empty list
+        if type(layers) is not list or len(layers) == 0:
             raise TypeError("layers must be a list of positive integers")
 
         # Initialize L
@@ -47,17 +46,21 @@ class DeepNeuralNetwork:
 
         # Loop through the layers of the neural network
         for i in range(self.L):
+            # Check if the type of the current element in layers is not an
+            # integer or if it is a negative integer
+            if type(layers[i]) != int or layers[i] < 0:
+                raise TypeError("layers must be a list of positive integers")
             # Check if it's the first layer
             if i == 0:
                 # Initialize weights of the first layer using He et al. method
                 self.weights["W" + str(i + 1)] = np.random.randn(
-                    layers[i], nx) * np.sqrt(2/nx)
+                    layers[i], nx) * np.sqrt(2 / nx)
                 # Initialize biases of the first layer to zeros
                 self.weights["b" + str(i + 1)] = np.zeros((layers[i], 1))
 
             else:
                 # Initialize weights of hidden layers using He et al. method
                 self.weights["W" + str(i + 1)] = np.random.randn(
-                    layers[i], layers[i-1]) * np.sqrt(2/layers[i-1])
+                    layers[i], layers[i - 1]) * np.sqrt(2 / layers[i - 1])
                 # Initialize biases of hidden layers to zeros
-                self.weights["b" + str(i + 1)] = np.zeros((layers[i], 1))
+            self.weights["b" + str(i + 1)] = np.zeros((layers[i], 1))
