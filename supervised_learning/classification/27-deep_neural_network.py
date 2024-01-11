@@ -103,22 +103,26 @@ class DeepNeuralNetwork:
         """
         # Initialize the input layer in the cache with the input data
         self.__cache["A0"] = X
-        
+
         # Iterate over the layers of the network
         for layer_idx in range(self.L):
-            # Create a key to retrieve the output of the previous layer from the cache
+            # Create a key to retrieve the output of the previous layer from
+            # the cache
             input_key = "A" + str(layer_idx)
-            # Create a key to retrieve the weights of the current layer from the network's weights
+            # Create a key to retrieve the weights of the current layer from
+            # the network's weights
             weight_key = "W" + str(layer_idx + 1)
-            # Create a key to retrieve the biases of the current layer from the network's biases
+            # Create a key to retrieve the biases of the current layer from
+            # the network's biases
             bias_key = "b" + str(layer_idx + 1)
-            
-            # Calculate the weighted sum of the inputs of the current layer using weights and biases
+
+            # Calculate the weighted sum of the inputs of the current layer
+            # using weights and biases
             z = np.matmul(
                 self.weights.get(weight_key),
                 self.cache.get(input_key)
             ) + self.weights.get(bias_key)
-            
+
             # If it's the output layer
             if layer_idx == self.L - 1:
                 # Apply the softmax function to obtain class probabilities
@@ -126,11 +130,12 @@ class DeepNeuralNetwork:
             else:
                 # For hidden layers, apply the sigmoid activation function
                 A = 1 / (1 + np.exp(-z))
-            
-            # Record the output of the current layer in the cache for future use
+
+            # Record output of the current layer in the cache for future use
             self.__cache["A" + str(layer_idx + 1)] = A
 
-        # Return the output of the final layer and the cache containing the outputs of each layer
+        # Return the output of the final layer and the cache containing the
+        # outputs of each layer
         return A, self.cache
 
     def cost(self, Y, A):
