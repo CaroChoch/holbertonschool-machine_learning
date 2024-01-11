@@ -199,7 +199,8 @@ class DeepNeuralNetwork:
             self.__weights["W" + str(i)] -= alpha * dw
             self.__weights["b" + str(i)] -= alpha * db
 
-    def train(self, X, Y, iterations=5000, alpha=0.05, verbose=True, graph=True, step=100):
+    def train(self, X, Y, iterations=5000, alpha=0.05, verbose=True,
+              graph=True, step=100):
         """
         Trains the deep neural network
         X is a numpy.ndarray with shape (nx, m) that contains the input data
@@ -258,8 +259,9 @@ class DeepNeuralNetwork:
             # Calculate the output of the neural network
             self.__A, self.__An = self.forward_prop(X)
 
-            # Perform gradient descent
-            self.gradient_descent(Y, self.__An, alpha)
+            # Perform gradient descent for every iteration except the final one
+            if i < iterations:
+                self.gradient_descent(Y, self.__An, alpha)
 
             # Calculate the cost
             cost = self.cost(Y, self.__A)
