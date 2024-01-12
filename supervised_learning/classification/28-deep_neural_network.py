@@ -210,38 +210,42 @@ class DeepNeuralNetwork:
         """
         # Compute the number of examples
         m = Y.shape[1]
-
         # Compute the derivative of the output of the neural network
         dz = cache["A" + str(self.__L)] - Y
 
-        # Loop through the layers of the neural network in reverse order
-        for i in range(self.__L, 0, -1):
-            # Compute the derivative of the weights at each layer
-            dw = np.matmul(dz, cache["A" + str(i - 1)].T) / m
+        # Update the weights and biases using backpropagation
+        for i in reversed(range(1, self.L + 1)):
+            # Construct keys for weights, biases and previous layer activations
+            current_weight_key = "W" + str(i)
+            current_bias_key = "b" + str(i)
+            previous_layer_activations_key = "A" + str(i - 1)
 
-            # Compute the derivative of the biases at each layer
-            db = np.sum(dz, axis=1, keepdims=True) / m
+            # Retrieve weights, biases, and previous layer activations
+            current_weight = self.weights.get(current_weight_key)
+            current_bias = self.weights.get(current_bias_key)
+            previous_layer_activations = self.cache.get(
+                previous_layer_activations_key)
 
-            # Update the weights and biases of the network
-            self.__weights["W" + str(i)] -= alpha * dw
-            self.__weights["b" + str(i)] -= alpha * db
+            # Compute gradients for the current layer
+            dw = np.matmul(dz, previous_layer_activations.T) / m  # Weight grad
+            db = np.sum(dz, axis=1, keepdims=True) / m  # Bias gradient
 
-            # checks if the current layer is not the first layer
+            # Update weights and biases using gradient descent
+            self.__weights[current_weight_key] = current_weight - alpha * dw
+            self.__weights[current_bias_key] = current_bias - alpha * db
+
+            # If not the input layer, compute gradient for the next layer
             if i > 1:
-                # checks if the activation function used in the network is
-                # the sigmoid activation function
+                # Use the appropriate activation function for backpropagation
                 if self.activation == "sig":
-                    # Compute the derivative of the output of the previous
-                    # layer
                     dz = np.matmul(
-                        self.__weights["W" + str(i)].T, dz) * (
-                            cache["A" + str(i - 1)] * (
-                                1 - cache["A" + str(i - 1)]))
+                        current_weight.T, dz
+                    ) * previous_layer_activations * (
+                        1 - previous_layer_activations)
                 else:
-                    # Compute the derivative of the output of the previous
-                    # layer
-                    dz = np.matmul(self.__weights["W" + str(i)].T, dz) * (
-                        1 - cache["A" + str(i - 1)] ** 2)
+                    dz = np.matmul(
+                        current_weight.T, dz
+                    ) * (1 - previous_layer_activations**2)
 
     def train(self, X, Y, iterations=5000, alpha=0.05, verbose=True,
               graph=True, step=100):
