@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-that creates a learning rate decay operation in tensorflow using
-inverse time decay
+Function that creates a learning rate decay operation in tensorflow
+using inverse time decay
 """
 import tensorflow.compat.v1 as tf
 
