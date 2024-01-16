@@ -21,8 +21,8 @@ def create_batch_norm_layer(prev, n, activation):
     # Initialize the weights and biases of the layer
     init = tf.keras.initializers.VarianceScaling(mode="fan_avg")
     layer = tf.keras.layers.Dense(units=n,
-                            kernel_initializer=init,
-                            name="layer")
+                                  kernel_initializer=init,
+                                  name="layer")
 
     # Generate the output of the layer
     Z = layer(prev)
