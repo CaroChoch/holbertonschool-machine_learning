@@ -23,7 +23,7 @@ def moving_average(data, beta):
         # Update the weighted cumulative sum
         weighted_sum = beta * weighted_sum + (1 - beta) * data[i]
         # Update the bias correction (cumulative sum of weighting coefficients)
-        bias_correction = bias_correction * beta + (1 - beta)
+        bias_correction = 1 - beta ** (i + 1)
         # Calculate the weighted moving average with bias correction
         weight_moving_average = weighted_sum / bias_correction
         # Append the weighted moving average to the list
