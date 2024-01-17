@@ -69,7 +69,10 @@ def create_batch_norm_layer(prev, n, activation):
                                        variance_epsilon=epsilon)
 
     # Return the activation function applied to Z
-    return activation(Z_norm)
+    if activation is None:
+        return Z_norm
+    else:
+        return activation(Z_norm)
 
 
 def forward_prop(x, layer_sizes=[], activations=[]):
@@ -171,7 +174,7 @@ def learning_rate_decay(alpha, decay_rate, global_step, decay_step):
     return learning_rate_decay
 
 
-def create_Adam_op(loss, alpha, beta1, beta2, epsilon):
+def create_Adam_op(loss, alpha, beta1, beta2, epsilon, global_step):
     """
     Function that creates the training operation for a neural network in
     tensorflow using the Adam optimization algorithm
@@ -192,7 +195,7 @@ def create_Adam_op(loss, alpha, beta1, beta2, epsilon):
                                        epsilon=epsilon)
 
     # Create the Adam optimization operation
-    Adam_op = optimizer.minimize(loss)
+    Adam_op = optimizer.minimize(loss, global_step=global_step)
 
     # Return the Adam optimization operation
     return Adam_op
@@ -257,16 +260,17 @@ def model(Data_train, Data_valid, layers, activations, alpha=0.001, beta1=0.9,
     global_step = tf.Variable(0, trainable=False)
 
     # compute decay_steps
-    if X_train.shape[0] % batch_size == 0:
-        decay_step = X_train.shape[0] // batch_size
-    else:
-        decay_step = (X_train.shape[0] // batch_size) + 1
+    decay_step = len(X_train) // batch_size
+    if len(X_train) % batch_size != 0:
+        decay_step += 1
 
     # create "alpha" the learning rate decay operation in tensorflow
-    alpha = learning_rate_decay(alpha, decay_rate, global_step, decay_step)
+    alpha_decay = learning_rate_decay(alpha, decay_rate,
+                                      global_step, decay_step)
 
     # initizalize train_op and add it to collection
-    train_op = create_Adam_op(loss, alpha, beta1, beta2, epsilon)
+    train_op = create_Adam_op(loss, alpha_decay, beta1,
+                              beta2, epsilon, global_step)
     tf.add_to_collection('train_op', train_op)
 
     # initialize all variables
@@ -277,6 +281,7 @@ def model(Data_train, Data_valid, layers, activations, alpha=0.001, beta1=0.9,
         sess.run(init)
 
         for i in range(epochs):
+            step = 1
             # print training and validation cost and accuracy
             training_cost = sess.run(
                 loss,
@@ -300,12 +305,11 @@ def model(Data_train, Data_valid, layers, activations, alpha=0.001, beta1=0.9,
             # shuffle data
             shuffled_X, shuffled_Y = shuffle_data(X_train, Y_train)
 
-            step = 0
             for j in range(0, X_train.shape[0], batch_size):
                 # get X_batch and Y_batch from X_train shuffled and
                 # Y_train shuffled
-                X_batch = shuffled_X[j:j + batch_size]
-                Y_batch = shuffled_Y[j:j + batch_size]
+                X_batch = shuffled_X[j:j + batch_size, :]
+                Y_batch = shuffled_Y[j:j + batch_size, :]
 
                 # run training operation
                 sess.run(train_op, feed_dict={x: X_batch, y: Y_batch})
@@ -337,7 +341,7 @@ def model(Data_train, Data_valid, layers, activations, alpha=0.001, beta1=0.9,
             accuracy,
             feed_dict={x: X_valid, y: Y_valid})
 
-        print(f"After {i + 1} epochs:")
+        print(f"After {epochs} epochs:")
         print(f"\tTraining Cost: {training_cost}")
         print(f"\tTraining Accuracy: {training_accuracy}")
         print(f"\tValidation Cost: {validation_cost}")
@@ -345,4 +349,4 @@ def model(Data_train, Data_valid, layers, activations, alpha=0.001, beta1=0.9,
 
         # save and return the path to where the model was saved
         save_path = saver.save(sess, save_path)
-        return save_path
+    return save_path
