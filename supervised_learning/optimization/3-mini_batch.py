@@ -48,12 +48,6 @@ def train_mini_batch(X_train, Y_train, X_valid, Y_valid, batch_size=32,
         loss = tf.get_collection('loss')[0]
         train_op = tf.get_collection('train_op')[0]
 
-        # Calculate the number of iterations per epoch
-        if X_train.shape[0] % batch_size == 0:
-            num_iterations = X_train.shape[0] // batch_size
-        else:
-            num_iterations = (X_train.shape[0] // batch_size) + 1
-
         # Loop over the number of epochs
         for epoch in range(epochs + 1):
             # Evaluate the training cost and accuracy of the model
@@ -68,51 +62,39 @@ def train_mini_batch(X_train, Y_train, X_valid, Y_valid, batch_size=32,
                                               feed_dict={x: X_valid,
                                                          y: Y_valid})
 
-            print(f"After {epoch} epochs:\n")
-            print(f"\tTraining Cost: {training_cost}\n")
-            print(f"\tTraining Accuracy: {training_accuracy}\n")
-            print(f"\tValidation Cost: {validation_cost}\n")
-            print(f"\tValidation Accuracy: {validation_accuracy}\n")
+            print(f"After {epoch} epochs:")
+            print(f"\tTraining Cost: {training_cost}")
+            print(f"\tTraining Accuracy: {training_accuracy}")
+            print(f"\tValidation Cost: {validation_cost}")
+            print(f"\tValidation Accuracy: {validation_accuracy}")
+
+            # Save the model after the last epoch
+            if epoch == epochs:
+                return saver.save(session, save_path)
 
             # shuffle the training data for each epoch
             shuffled_X, shuffled_Y = shuffle_data(X_train, Y_train)
 
-            # loop over the batches
-            if epoch < epochs:
+            # Generate indices for mini-batch
+            steps = list(range(0, len(shuffled_X), batch_size))
 
-                start_index = 0
-                if batch_size < X_train.shape[0]:
-                    end_index = batch_size
-                else:
-                    end_index = X_train.shape[0]
+            # Loop over mini-batch
+            for step, start_index in enumerate(steps, start=1):
+                end_index = start_index + batch_size
+                X_batch = shuffled_X[start_index:end_index]
+                Y_batch = shuffled_Y[start_index:end_index]
+                session.run(train_op, feed_dict={x: X_batch, y: Y_batch})
 
-                # Loop over mini-batches
-                for step_number in range(num_iterations):
-                    # Create the mini-batches
-                    X_batch = shuffled_X[start_index:end_index]
-                    Y_batch = shuffled_Y[start_index:end_index]
-
-                    # Perform a training step
-                    session.run(train_op, feed_dict={x: X_batch, y: Y_batch})
-
-                    # Update batch indices for the next iteration
-                    start_index += batch_size
-                    if end_index + batch_size < X_train.shape[0]:
-                        end_index += batch_size
-                    else:
-                        end_index = X_train.shape[0]
-
-                    # Print intermediate results every 100 steps
-                    if step_number > 0 and step_number % 100 == 0:
-                        step_cost = session.run(loss, feed_dict={x: X_batch,
-                                                                 y: Y_batch})
-                        step_accuracy = session.run(accuracy,
-                                                    feed_dict={x: X_batch,
-                                                               y: Y_batch})
-                        print(f"\tStep {step_number}:")
-                        print(f"\t\tCost: {step_cost}")
-                        print(f"\t\tAccuracy: {step_accuracy}")
-
+                # Print progress every 100 steps
+                if step % 100 == 0 and step != 1:
+                    step_cost = session.run(loss, feed_dict={x: X_batch,
+                                                             y: Y_batch})
+                    step_accuracy = session.run(accuracy,
+                                                feed_dict={x: X_batch,
+                                                           y: Y_batch})
+                    print(f"\tStep {step}:")
+                    print(f"\t\tCost: {step_cost}")
+                    print(f"\t\tAccuracy: {step_accuracy}")
         # save the trained session
         save_path = saver.save(session, save_path)
     return save_path
