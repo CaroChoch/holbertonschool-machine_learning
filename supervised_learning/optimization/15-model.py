@@ -257,7 +257,10 @@ def model(Data_train, Data_valid, layers, activations, alpha=0.001, beta1=0.9,
     global_step = tf.Variable(0, trainable=False)
 
     # compute decay_steps
-    decay_step = X_train.shape[0] / batch_size
+    if X_train.shape[0] % batch_size == 0:
+        decay_step = X_train.shape[0] // batch_size
+    else:
+        decay_step = (X_train.shape[0] // batch_size) + 1
 
     # create "alpha" the learning rate decay operation in tensorflow
     alpha = learning_rate_decay(alpha, decay_rate, global_step, decay_step)
@@ -320,26 +323,26 @@ def model(Data_train, Data_valid, layers, activations, alpha=0.001, beta1=0.9,
                     print(f"\t\tAccuracy: {batch_accuracy}")
                 step += 1
 
-            # print training and validation cost and accuracy again
-            training_cost = sess.run(
-                loss,
-                feed_dict={x: X_train, y: Y_train})
-            training_accuracy = sess.run(
-                accuracy,
-                feed_dict={x: X_train, y: Y_train})
-            validation_cost = sess.run(
-                loss,
-                feed_dict={x: X_valid, y: Y_valid})
-            validation_accuracy = sess.run(
-                accuracy,
-                feed_dict={x: X_valid, y: Y_valid})
+        # print training and validation cost and accuracy again
+        training_cost = sess.run(
+            loss,
+            feed_dict={x: X_train, y: Y_train})
+        training_accuracy = sess.run(
+            accuracy,
+            feed_dict={x: X_train, y: Y_train})
+        validation_cost = sess.run(
+            loss,
+            feed_dict={x: X_valid, y: Y_valid})
+        validation_accuracy = sess.run(
+            accuracy,
+            feed_dict={x: X_valid, y: Y_valid})
 
-            print(f"After {i + 1} epochs:")
-            print(f"\tTraining Cost: {training_cost}")
-            print(f"\tTraining Accuracy: {training_accuracy}")
-            print(f"\tValidation Cost: {validation_cost}")
-            print(f"\tValidation Accuracy: {validation_accuracy}")
+        print(f"After {i + 1} epochs:")
+        print(f"\tTraining Cost: {training_cost}")
+        print(f"\tTraining Accuracy: {training_accuracy}")
+        print(f"\tValidation Cost: {validation_cost}")
+        print(f"\tValidation Accuracy: {validation_accuracy}")
 
-            # save and return the path to where the model was saved
-            save_path = saver.save(sess, save_path)
+        # save and return the path to where the model was saved
+        save_path = saver.save(sess, save_path)
         return save_path
