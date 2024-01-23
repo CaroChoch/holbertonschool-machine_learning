@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """ Function taht calculates the F1 score of a confusion matrix """
 import numpy as np
+sensitivity = __import__('1-sensitivity').sensitivity
+precision = __import__('2-precision').precision
 
 
 def f1_score(confusion):
@@ -15,23 +17,14 @@ def f1_score(confusion):
         A numpy.ndarray of shape (classes,) containing the F1 score of each
         class
     """
-    # True Positives (TP) are the diagonal elements of the confusion matrix
-    TP = np.diag(confusion)
+    # Initialize an array to store F1 score values for each class
+    F1_score = np.zeros(confusion.shape[0])
+    # Calculate sensitivity and precision using the provided functions
+    sensitivity_values = sensitivity(confusion)
+    precision_values = precision(confusion)
 
-    # False Positives(FP) are the sum of each column (predicted class) minus TP
-    FP = np.sum(confusion, axis=0) - TP
+    # Calculate F1 score for each class using sensitivity and precision
+    F1_score = 2 * (sensitivity_values * precision_values) / (
+        sensitivity_values + precision_values)
 
-    # False Negatives (FN) are the sum of each row (actual class) minus TP
-    FN = np.sum(confusion, axis=1) - TP
-
-    # Precision for each class is calculated using TP and FP
-    precision = TP / (TP + FP)
-
-    # Recall for each class is calculated using TP and FN
-    recall = TP / (TP + FN)
-
-    # F1 score for each class is calculated using precision and recall
-    F1_score = 2 * precision * recall / (precision + recall)
-
-    # Return the array containing F1 score values for each class
     return F1_score
