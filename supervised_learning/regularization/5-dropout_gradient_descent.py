@@ -37,10 +37,12 @@ def dropout_gradient_descent(Y, weights, cache, alpha, keep_prob, L):
         db = np.sum(dz, axis=1, keepdims=True) / m
 
         # If it is not the output layer, update dz for tanh activation
+        # Calculate the derivative of tanh activation and multiply by dz
+        dz = np.matmul(weights['W' + str(i)].T, dz) * (
+            1 - cache["A" + str(i - 1)] ** 2)
+        # If it is not the input layer, apply dropout regularization to the
+        # hidden layers
         if i != 1:
-            # Calculate the derivative of tanh activation and multiply by dz
-            dz = np.matmul(weights['W' + str(i)].T, dz) * (
-                1 - cache["A" + str(i - 1)] ** 2)
             # Apply dropout regularization to the hidden layers
             dz *= cache['D' + str(i - 1)]  # Apply the mask
             dz /= keep_prob  # Adjust the activation
