@@ -42,7 +42,7 @@ def dropout_gradient_descent(Y, weights, cache, alpha, keep_prob, L):
             1 - cache["A" + str(i - 1)] ** 2)
         # If it is not the input layer, apply dropout regularization to the
         # hidden layers
-        if i != 1:
+        if i > 1:
             # Apply dropout regularization to the hidden layers
             dz *= cache['D' + str(i - 1)]  # Apply the mask
             dz /= keep_prob  # Adjust the activation
