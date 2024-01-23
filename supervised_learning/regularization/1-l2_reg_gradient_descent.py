@@ -38,14 +38,11 @@ def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
         # Calculate the derivative of the biases
         db = np.sum(dz, axis=1, keepdims=True) / m
 
-        # If it is not the output layer, calculate the derivative of the
-        # the activation function (tanh) and multiply it by the derivative
-        # of the loss function with respect to z
-        if i == 1:
-            # Calculate the derivative of tanh activation
-            tanh_derivative = 1 - np.power(cache["A" + str(i)], 2)
-            # Update dz for tanh activation
-            dz = np.matmul(dz, tanh_derivative.T)
+        # If it is not the output layer, update dz for tanh activation
+        if i != 1:
+            # Calculate the derivative of tanh activation and multiply by dz
+            dz = np.matmul(weights['W' + str(i)].T, dz) * (
+                1 - cache["A" + str(i - 1)] ** 2)
         else:
             # Update dz for other activation functions
             dz = np.matmul(weights['W' + str(i)].T, dz)
