@@ -24,27 +24,32 @@ def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
     # Initialize the number of layers of the network
     m = Y.shape[1]
 
-    # Copy the weights dictionary to new variables
-    weights_dictionary = weights.copy()
-
     # Calculate the derivative of the loss function with respect to z
     dz = cache['A' + str(L)] - Y
 
     # Iterate through the layers backwards
     for i in range(L, 0, -1):
         # Calculate the L2 regularization term
-        l2_reg_term = (lambtha / m) * weights_dictionary['W' + str(i)]
+        l2_reg_term = (lambtha / m) * weights['W' + str(i)]
 
         # Calculate the derivative of the weights (with L2 regularization)
-        dw = (np.matmul(dz, cache['A' + str(i - 1)].T) / m) + l2_reg_term
+        dw = np.matmul(dz, cache['A' + str(i - 1)].T) / m + l2_reg_term
 
         # Calculate the derivative of the biases
         db = np.sum(dz, axis=1, keepdims=True) / m
 
-        # Calculate the derivative of the previous layer's dz
-        dz = np.matmul(weights_dictionary['W' + str(i)].T, dz) * (
-            cache["A" + str(i - 1)] * (1 - cache["A" + str(i - 1)]))
-
         # Update the weights and biases using gradient descent
         weights['W' + str(i)] -= alpha * dw
         weights['b' + str(i)] -= alpha * db
+
+        # If it is not the output layer, calculate the derivative of the
+        # the activation function (tanh) and multiply it by the derivative
+        # of the loss function with respect to z
+        if i == 1:
+            # Calculate the derivative of tanh activation
+            tanh_derivative = 1 - np.power(cache["A" + str(i)], 2)
+            # Update dz for tanh activation
+            dz = np.matmul(dz, tanh_derivative.T)
+        else:
+            # Update dz for other activation functions
+            dz = np.matmul(weights['W' + str(i)].T, dz)
