@@ -44,8 +44,7 @@ def dropout_gradient_descent(Y, weights, cache, alpha, keep_prob, L):
         # hidden layers
         if i > 1:
             # Apply dropout regularization to the hidden layers
-            dz *= cache['D' + str(i - 1)]  # Apply the mask
-            dz /= keep_prob  # Adjust the activation
+            dz *= cache['D' + str(i - 1)] / keep_prob
 
         # Update the weights and biases using gradient descent
         weights['W' + str(i)] -= alpha * dw
