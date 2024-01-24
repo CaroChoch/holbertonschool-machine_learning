@@ -16,7 +16,7 @@ def early_stopping(cost, opt_cost, threshold, patience, count):
       by the updated count
     """
     early_stopping = True
-     # Check if the current cost improvement is greater than the threshold
+    # Check if the current cost improvement is greater than the threshold
     if (opt_cost - cost) > threshold:
         # Reset the count as there is improvement
         count = 0
