@@ -43,7 +43,7 @@ def train_model(network, data, labels, batch_size, epochs,
                           epochs=epochs,
                           validation_data=validation_data,
                           verbose=verbose,
-                          callbacks=[callback],
+                          callbacks=callback,
                           shuffle=shuffle)
 
     # Return the training history
