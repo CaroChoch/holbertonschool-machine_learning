@@ -26,13 +26,14 @@ def convolve_grayscale_padding(images, kernel, padding):
             * the image should be padded with 0’s
     Returns: a numpy.ndarray containing the convolved images
     """
-    m, h, w = images.shape  # Get the dimensions of the image
-    kh, kw = kernel.shape  # Get the dimensions of the jernel
-    ph, pw = padding  # Get the padding dimensions
+    # Dimensions of the images, kernel and padding
+    m, h, w = images.shape
+    kh, kw = kernel.shape
+    ph, pw = padding
 
     # Calculate padding size to ensure same-sized output
     pad_h = h - kh + 1 + 2 * ph
-    pad_w = w - kh + 1 + 2 * pw
+    pad_w = w - kw + 1 + 2 * pw
 
     # Initialize the output
     output = np.zeros((m, pad_h, pad_w))
@@ -45,10 +46,11 @@ def convolve_grayscale_padding(images, kernel, padding):
     # Perform convolution with 2 loops
     for i in range(pad_h):
         for j in range(pad_w):
-            # Apply convolution by multiplying the ROI with the jernel
+            # Extract the Region of Interest (ROI) from the padded image
+            roi = padded_images[:, i:i+kh, j:j+kw]
+
+            # Apply convolution by multiplying the ROI with the kernel
             # and summing the results
-            output[:, i, j] = np.sum(
-                (padded_images[:, i:i+kh, j:j+kw]) * kernel, axis=(1, 2)
-                )
+            output[:, i, j] = np.sum(roi * kernel, axis=(1, 2))
 
     return output
