@@ -34,18 +34,17 @@ def convolve_grayscale_padding(images, kernel, padding):
     pad_h = h - kh + 1 + 2 * ph
     pad_w = w - kh + 1 + 2 * pw
 
-    # Pad the input images
-    padded_images = np.pad(images,
-                           ((0, 0), (pad_h, pad_h),
-                            (ph, pw)), mode='constant')
-
     # Initialize the output
     output = np.zeros((m, pad_h, pad_w))
 
-    # Perform convolution with 2 loops
+    # Pad the input images
+    padded_images = np.pad(images,
+                           ((0, 0), (ph, ph),
+                            (pw, pw)), mode='constant')
 
-    for i in range(h):
-        for j in range(w):
+    # Perform convolution with 2 loops
+    for i in range(pad_h):
+        for j in range(pad_w):
             # Extract the Region of Interest (ROI) from the padded image
             roi = padded_images[:, i:i+kh, j:j+kw]
 
