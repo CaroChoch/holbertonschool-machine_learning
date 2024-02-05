@@ -47,16 +47,16 @@ def conv_forward(A_prev, W, b, activation, padding="same", stride=(1, 1)):
 
     # Calculate padding and output size
     if padding == 'same':
-        ph = (((h_prev - 1) * sh + kh - h_prev) / 2)
-        pw = (((w_prev - 1) * sw + kw - w_prev) / 2)
+        ph = int(((h_prev - 1) * sh + kh - h_prev) / 2)
+        pw = int(((w_prev - 1) * sw + kw - w_prev) / 2)
     elif padding == "valid":
         ph, pw = 0, 0
     else:
         ph, pw = padding
 
     # Calculate dimensions of the output
-    h_new = (h_prev + 2 * ph - kh) // sh + 1
-    w_new = (w_prev + 2 * pw - kw) // sw + 1
+    h_new = int(h_prev + 2 * ph - kh) // sh + 1
+    w_new = int(w_prev + 2 * pw - kw) // sw + 1
 
     # Initialize the output
     A_new = np.zeros((m, h_new, w_new, c_new))
