@@ -39,32 +39,31 @@ neural network
     # Get stride dimensions
     sh, sw = stride
 
-    # Calculate dimensions of the output
-    h_new = int(h_prev - kh) // sh + 1
-    w_new = int(w_prev - kw) // sw + 1
+    # Calculate the dimensions of the output layer
+    h_out = int((h_prev - kh) / sh) + 1
+    w_out = int((w_prev - kw) / sw) + 1
 
-    # Initialize the output
-    A_new = np.zeros((m, h_new, w_new, c_prev))
+    # Initialize the output matrix
+    A_out = np.zeros((m, h_out, w_out, c_prev))
 
-    A_prev_padded = np.pad(
-        A_prev,
-        ((0, 0), (0, 0), (0, 0), (0, 0)), mode='constant')
+    # Loop through the output layer
+    for i in range(h_out):
+        for j in range(w_out):
+            # Calculate the starting and ending indices of the
+            # resdpective field
+            h_start = i * sh
+            h_end = h_start + kh
+            w_start = j * sw
+            w_end = w_start + kw
 
-    for i in range(h_new):
-        for j in range(w_new):
-            # Calculate the starting indices for the convolution operation
-            start_h = i * sh
-            start_w = j * sw
-            # Extract the Region of Interest (ROI)
-            roi = A_prev_padded[:, start_h:start_h+kh, start_w:start_w+kw]
-            
-            # Apply max pooling
-        if mode == 'max':
-            # For each channel, take the maximum value within the ROI
-            A_new[:, i, j, :] = np.max(roi, axis=(1, 2))
-        # Apply average pooling
-        elif mode == 'avg':
-            # For each channel, take the average value within the ROI
-            A_new[:, i, j, :] = np.mean(roi, axis=(1, 2))
+            # Extract the ROI (region of interest) from the input
+            roi = A_prev[:, h_start:h_end, w_start:w_end, :]
 
-    return A_new
+            # Perform pooling operation based on the specified mode
+            if mode == 'max':
+                A_out[:, i, j, :] = np.max(roi, axis=(1, 2))
+            elif mode == 'avg':
+                A_out[:, i, j, :] = np.mean(roi, axis=(1, 2))
+
+    # return the output of the pooling layer
+    return A_out
