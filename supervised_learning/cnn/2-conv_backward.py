@@ -49,33 +49,35 @@ def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
     # Get stride dimensions
     sh, sw = stride
 
-    # Initialize gradients for the previous layer, kernels, and biases
-    dA_prev = np.zeros(shape=A_prev.shape)
-    dW = np.zeros(shape=W.shape)
-    db = np.sum(dZ, axis=(0, 1, 2), keepdims=True)
-
-    # Pad A_prev if required
+    # Calculate padding based on the specified type
     if padding == "same":
-        ph = int(((h_prev - 1) * sh + kh - h_prev) / 2)
-        pw = int(((w_prev - 1) * sw + kw - w_prev) / 2)
-        A_prev_padded = np.pad(
-            A_prev,
-            ((0, 0), (ph, ph), (pw, pw), (0, 0)),
-            mode='constant', constant_values=0)
+        ph = int(((h_prev - 1) * sh + kh - h_prev) / 2) + 1
+        pw = int(((w_prev - 1) * sw + kw - w_prev) / 2) + 1
+
     elif padding == "valid":
         ph, pw = 0, 0
-        A_prev_padded = A_prev
+
+    # Pad A_prev if required
+    A_prev_padded = np.pad(
+            A_prev,
+            ((0, 0), (ph, ph), (pw, pw), (0, 0)),
+            mode='constant')
+
+    # Initialize gradients for the previous layer, kernels, and biases
+    dA_prev = np.zeros(shape=A_prev_padded.shape)
+    dW = np.zeros(shape=W.shape)
+    db = np.sum(dZ, axis=(0, 1, 2), keepdims=True)
 
     # Loop over examples
     for i in range(m):
         # Loop over height
         for h in range(h_new):
             h_start = h * sh
-            h_end = h_start + kh
+            h_end = h * sh + kh
             # Loop over width
             for w in range(w_new):
                 w_start = w * sw
-                w_end = w_start + kw
+                w_end = w * sw + kw
                 # Loop over channels
                 for c in range(c_new):
                     # Compute gradients
@@ -84,11 +86,11 @@ def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
                     dW[:, :, :, c] += (
                         A_prev_padded[i, h_start:h_end, w_start:w_end, :] *
                         dZ[i, h, w, c])
-                    db[:, :, :, c] += dZ[i, h, w, c]
-        # Maintain output size when padding is "same"
-        if padding == "same":
-            dA = dA_prev[:, ph:-ph, pw:-pw, :]
-        elif padding == "valid":
-            dA = dA_prev
+
+    # Maintain output size when padding is "same"
+    if padding == "same":
+        dA = dA_prev[:, ph:-ph, pw:-pw, :]
+    elif padding == "valid":
+        dA = dA_prev
 
     return dA, dW, db
