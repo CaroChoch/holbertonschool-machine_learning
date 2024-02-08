@@ -59,17 +59,18 @@ def pool_backward(dA, A_prev, kernel_shape, stride=(1, 1), mode='max'):
                 w_start = w * sw
                 w_end = w * sw + kw
                 # Loop over channels
-                for c in range(c_new):
+                for ch in range(c_new):
                     # Perform pooling operation based on the specified mode
                     if mode == 'max':
-                        A_slice = A_prev[i, h_start:h_end, w_start:w_end, c]
+                        A_slice = A_prev[i, h_start:h_end, w_start:w_end, ch]
                         mask = (A_slice == np.max(A_slice))
                         dA_prev[i, h_start:h_end,
-                                w_start:w_end, c] += mask * dA[i,
-                                                               h, w, c]
+                                w_start:w_end, ch] += mask * dA[i,
+                                                                h, w, ch]
                     elif mode == 'avg':
-                        mask = dA[i, h, w, c] / (kh * kw)
-                        dA_prev[i, h_start:h_end, w_start:w_end, c] += np.ones(
-                            shape=(kh, kw) * mask)
+                        mask = dA[i, h, w, ch] / (kh * kw)
+                        dA_prev[i, h_start:h_end,
+                                w_start:w_end, ch] += np.ones(
+                            shape=(kh, kw)) * mask
 
     return dA_prev
