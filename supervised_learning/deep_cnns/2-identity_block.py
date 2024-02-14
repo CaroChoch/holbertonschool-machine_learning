@@ -53,9 +53,10 @@ def identity_block(A_prev, filters):
     )(relu_2)
     batch_normalization_3 = K.layers.BatchNormalization(axis=3)(conv3)
 
-    # Add the shortcut value to the output
-    add = K.layers.Add()([batch_normalization_3, A_prev])
+    # Add the input to the output
+    sum_result = K.layers.Add()([batch_normalization_3, A_prev])
 
     # Activate the final output
-    activated_output = K.layers.Activation('relu')(add)
+    activated_output = K.layers.Activation(activation='relu')(sum_result)
+
     return activated_output
