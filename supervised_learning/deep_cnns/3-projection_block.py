@@ -30,7 +30,7 @@ def projection_block(A_prev, filters, s=2):
     conv1 = K.layers.Conv2D(
         filters=F11,
         kernel_size=(1, 1),
-        strides=(1, 1),
+        strides=s,
         padding='same',
         kernel_initializer=initializer
     )(A_prev)
@@ -41,6 +41,7 @@ def projection_block(A_prev, filters, s=2):
     conv2 = K.layers.Conv2D(
         filters=F3,
         kernel_size=(3, 3),
+        strides=(1, 1),
         padding='same',
         kernel_initializer=initializer
     )(relu_1)
@@ -51,6 +52,7 @@ def projection_block(A_prev, filters, s=2):
     conv3 = K.layers.Conv2D(
         filters=F12,
         kernel_size=(1, 1),
+        strides=(1, 1),
         padding='same',
         kernel_initializer=initializer
     )(relu_2)
@@ -60,6 +62,7 @@ def projection_block(A_prev, filters, s=2):
     shortcut_connection = K.layers.Conv2D(
         filters=F12,
         kernel_size=(1, 1),
+        strides=s,
         padding='same',
         kernel_initializer=initializer
     )(A_prev)
