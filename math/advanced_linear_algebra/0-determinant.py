@@ -15,6 +15,11 @@ def determinant(matrix):
     if not isinstance(matrix, list) or not matrix:
         raise TypeError("matrix must be a list of lists")
 
+    # Check if each row in the matrix is a list
+    for row in matrix:
+        if not isinstance(row, list):
+            raise TypeError("matrix must be a list of lists")
+
     # Check if the input matrix is a 1x1 matrix containing an empty list
     if len(matrix) == 1 and len(matrix[0]) == 0:
         return 1
