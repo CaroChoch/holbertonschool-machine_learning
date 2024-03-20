@@ -62,4 +62,7 @@ class MultiNormal:
         # Calculate the PDF of the data point
         pdf = np.exp(exponent) / denominator_part
 
-        return pdf.item()  # Convert the result to a Python float
+        # Access the scalar value directly
+        pdf_scalar = pdf[0][0]
+
+        return pdf_scalar
