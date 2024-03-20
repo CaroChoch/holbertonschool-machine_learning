@@ -68,7 +68,7 @@ def determinant(matrix):
 
     # Check if the input matrix is square
     if len(matrix) != len(matrix[0]):
-        raise ValueError("matrix must be a square matrix")
+        raise ValueError("matrix must be a non-empty square matrix")
 
     # Handle the case of a 1x1 matrix
     if len(matrix) == 1:
