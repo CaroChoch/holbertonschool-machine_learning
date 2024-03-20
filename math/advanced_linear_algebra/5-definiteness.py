@@ -9,10 +9,11 @@ def definiteness(matrix):
     """
     Calculate the definiteness of a matrix
     Argument:
-        - matrix: numpy.ndarray of shape (n, n) whose definiteness should be calculated
-                  or a list of lists representing a matrix
-    Returns: the string "Positive definite", "Positive semi-definite", "Negative definite",
-             "Negative semi-definite", "Indefinite", or "None" if the matrix is not square
+        - matrix: numpy.ndarray of shape (n, n) whose definiteness should
+        be calculated or a list of lists representing a matrix
+    Returns: the string "Positive definite", "Positive semi-definite",
+    "Negative definite", "Negative semi-definite", "Indefinite", or
+    "None" if the matrix is not square
     """
     # Check if the input is a numpy.ndarray
     if not isinstance(matrix, np.ndarray):
