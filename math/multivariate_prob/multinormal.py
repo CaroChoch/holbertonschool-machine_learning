@@ -28,3 +28,37 @@ class MultiNormal:
         self.mean = np.mean(data, axis=1).reshape((data.shape[0], 1))
         self.cov = np.dot((data - self.mean), (data - self.mean).T) / (
             data.shape[1] - 1)
+
+    def pdf(self, x):
+        """
+        Calculates the PDF at a data point
+        Argument:
+         - x is a numpy.ndarray of shape (d, 1) containing the data point
+        Returns: the value of the PDF
+        """
+        # Check if x is a 2D numpy.ndarray
+        if not isinstance(x, np.ndarray) or len(x.shape) != 2:
+            raise TypeError('x must be a 2D numpy.ndarray')
+        # Check if x has the same number of dimensions as the mean
+        if x.shape[0] != self.mean.shape[0]:
+            raise ValueError('x must have the shape ({d}, 1)')
+
+        # Get the number of dimensions
+        d = self.mean.shape[0]
+
+        # Calculate the difference between the data point and the mean
+        x_m = x - self.mean
+
+        # Calculate the covariance determinant
+        cov_det = np.linalg.det(self.cov)
+
+        # Calculate the exponent of the PDF
+        exponent = -0.5 * np.dot(np.dot(x_m.T, np.linalg.inv(self.cov)), x_m)
+
+        # Calculate the denominator part of the PDF formula
+        denominator_part = np.sqrt((2 * np.pi) ** d * cov_det)
+
+        # Calculate the PDF of the data point
+        pdf = np.exp(exponent) / denominator_part
+
+        return pdf.item()  # Return the value of the PDF as a float
