@@ -37,14 +37,15 @@ class MultiNormal:
         Returns: the value of the PDF
         """
         # Check if x is a 2D numpy.ndarray
-        if not isinstance(x, np.ndarray) or len(x.shape) != 2:
+        if not isinstance(x, np.ndarray):
             raise TypeError('x must be a numpy.ndarray')
-        # Check if x has the same number of dimensions as the mean
-        if x.shape[0] != self.mean.shape[0]:
-            raise ValueError('x must have the shape ({}, 1)'.format(d))
 
         # Get the number of dimensions
         d = self.mean.shape[0]
+
+        # Check if x has the same number of dimensions as the mean
+        if x.shape[0] != self.mean.shape[0] or x.shape[1] != 1:
+            raise ValueError('x must have the shape ({}, 1)'.format(d))
 
         # Calculate the difference between the data point and the mean
         x_m = x - self.mean
@@ -61,4 +62,4 @@ class MultiNormal:
         # Calculate the PDF of the data point
         pdf = np.exp(exponent) / denominator_part
 
-        return pdf
+        return pdf.item()  # Convert the result to a Python float
