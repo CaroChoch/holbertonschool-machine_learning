@@ -38,10 +38,10 @@ class MultiNormal:
         """
         # Check if x is a 2D numpy.ndarray
         if not isinstance(x, np.ndarray) or len(x.shape) != 2:
-            raise TypeError('x must be a 2D numpy.ndarray')
+            raise TypeError('x must be a numpy.ndarray')
         # Check if x has the same number of dimensions as the mean
         if x.shape[0] != self.mean.shape[0]:
-            raise ValueError('x must have the shape ({d}, 1)')
+            raise ValueError('x must have the shape ({}, 1)'.format(d))
 
         # Get the number of dimensions
         d = self.mean.shape[0]
@@ -61,4 +61,4 @@ class MultiNormal:
         # Calculate the PDF of the data point
         pdf = np.exp(exponent) / denominator_part
 
-        return pdf.item()  # Return the value of the PDF as a float
+        return pdf
