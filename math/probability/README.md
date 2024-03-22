@@ -1,6 +1,6 @@
-# Probability
+# <p align='center'>Probability</p>
 
-![Probability Project Image](image link here)
+![probability](https://github.com/CaroChoch/holbertonschool-machine_learning/assets/113856063/57f69a95-16cc-46b3-a926-ba1d32581a48)
 
 ## 📝 Description
 A comprehensive guide to the "Probability" project, part of the Holberton School curriculum. This project encompasses a variety of probability concepts, from basic principles to complex distributions. Key functionalities include classes and methods for different probability distributions such as Poisson, Exponential, Normal, and Binomial, with applications in real-world scenarios.
