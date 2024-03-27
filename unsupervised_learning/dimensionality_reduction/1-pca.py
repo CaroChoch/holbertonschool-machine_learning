@@ -25,9 +25,8 @@ def pca(X, ndim):
 
     # Singular Value Decomposition (SVD)
     u, s, vh = np.linalg.svd(X_centered)
-    
+
     # Construct transformation matrix T
-    T = - np.dot(X_centered, vh[:ndim].T)
-    
+    T = np.dot(X_centered, vh[:ndim].T)
+
     return T
-    
