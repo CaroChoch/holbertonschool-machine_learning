@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ Initialize K-means """
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def initialize(X, k):
