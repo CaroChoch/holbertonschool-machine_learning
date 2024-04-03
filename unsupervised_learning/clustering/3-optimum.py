@@ -29,20 +29,25 @@ def optimum_k(X, kmin=1, kmax=None, iterations=1000):
     if not isinstance(kmin, int) or kmin < 1:
         return None, None
     # Checking if kmax is a positive integer
-    if not isinstance(kmax, int) or kmax < 1:
+    if kmax is not None and not isinstance(kmax, int) or kmax < 1:
         return None, None
     # Checking if kmax is greater than kmin
-    if kmax <= kmin:
+    if kmax is not None and kmax <= kmin:
         return None, None
     # Checking if iterations is a positive integer
     if not isinstance(iterations, int) or iterations < 1:
         return None, None
 
+    # Extracting the number of data points (n) and dimensions (d) from X
+    n, d = X.shape
+    # Setting kmax to n if it is None
+    if kmax is None:
+        kmax = n
     # initializing results and d_vars lists
     results = []
     d_vars = []
     # Iterating through the range of clusters
-    for k in range(kmin, kmax + 1):
+    for k in range(kmin, (kmax or kmin) + 1):
         # Running K-means on the dataset
         C, clss = kmeans(X, k, iterations)
         # Checking if K-means failed
