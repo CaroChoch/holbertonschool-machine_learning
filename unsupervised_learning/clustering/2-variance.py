@@ -25,7 +25,7 @@ def variance(X, C):
 
     # Calculating distances between each data point and centroids
     distances = np.linalg.norm(X - C[:, np.newaxis], axis=2)
-    # Finding the minimum distance for each data point
+    # Finding the minimum distance per data point
     min_dist = np.min(distances, axis=0)
     # Calculating the total variance
     var = np.sum(min_dist ** 2)
