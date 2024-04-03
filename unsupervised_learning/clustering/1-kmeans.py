@@ -39,7 +39,7 @@ def kmeans(X, k, iterations=1000):
 
     # Iterating through the specified number of iterations
     for i in range(iterations):
-        # Creating a copy of the centroids for comparison
+        # Creating a copy of the centroids to enable comparison
         C_cp = np.copy(C)
         # Assigning each data point to the nearest centroid
         clss = np.linalg.norm(X - C[:, np.newaxis], axis=2).argmin(axis=0)
@@ -49,6 +49,6 @@ def kmeans(X, k, iterations=1000):
                 C[j] = np.random.uniform(X.min(axis=0), X.max(axis=0))
             else:
                 C[j] = X[clss == j].mean(axis=0)
-        # Checking for convergence
+        # Verifying convergence by checking if the centroids remain the same
         if (C == C_cp).all():
             return C, clss
