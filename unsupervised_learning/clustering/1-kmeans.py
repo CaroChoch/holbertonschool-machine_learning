@@ -52,3 +52,5 @@ def kmeans(X, k, iterations=1000):
         # Verifying convergence by checking if the centroids remain the same
         if (C == C_cp).all():
             return C, clss
+    # Returning the final centroids and clusters
+    return C, clss
