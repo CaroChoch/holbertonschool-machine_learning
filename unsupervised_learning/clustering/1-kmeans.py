@@ -52,5 +52,8 @@ def kmeans(X, k, iterations=1000):
         # Verifying convergence by checking if the centroids remain the same
         if (C == C_cp).all():
             return C, clss
+
+    # Assign each data point to the nearest centroid after the final iteration
+    clss = np.linalg.norm(X - C[:, np.newaxis], axis=2).argmin(axis=0)
     # Returning the final centroids and clusters
     return C, clss
