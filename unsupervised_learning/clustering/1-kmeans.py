@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ K-means """
 import numpy as np
-initialize = __import__('0-initialize').initialize
 
 
 def kmeans(X, k, iterations=1000):
@@ -29,8 +28,11 @@ def kmeans(X, k, iterations=1000):
 
     # Extracting the number of data points (n) and dimensions (d) from X
     n, d = X.shape
-    # Initializing centroids using the initialize function
-    C = initialize(X, k)
+    # Calculating the minimum and maximum values along each dimension of X
+    low = X.min(axis=0)
+    high = X.max(axis=0)
+    # Initializing centroids with random values within the range
+    C = np.random.uniform(low, high, (k, d))
     # Checking if centroids initialization failed
     if C is None:
         return None, None
