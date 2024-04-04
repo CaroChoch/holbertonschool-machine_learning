@@ -28,10 +28,10 @@ def initialize(X, k):
 
     # Extracting the number of data points (n) and dimensions (d) from X
     n, d = X.shape
-    # Initializing the priors for each cluster (pi) with equal probability
+    # Initializing the priors though each cluster (pi) with equal probability
     pi = np.full(shape=(k,), fill_value=1/k)
-    # Initializing the centroid means for each cluster (m) using K-means
+    # Initializing the centroid means though each cluster (m) using K-means
     m = kmeans(X, k)[0]
-    # Initialize covariance matrices for each cluster (S) as identity matrices
+    # Initialize covariance matrices in each cluster (S) as identity matrices
     S = np.full(shape=(k, d, d), fill_value=np.identity(d))
     return pi, m, S
