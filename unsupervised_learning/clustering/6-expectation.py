@@ -42,7 +42,7 @@ def expectation(X, pi, m, S):
     if not np.isclose([np.sum(pi)], [1])[0]:
         return None, None
 
-    # Initializing array for posterior probabilities
+    # Initializing array to posterior probabilities
     g = np.zeros((k, n))
 
     # Calculating posterior probabilities
