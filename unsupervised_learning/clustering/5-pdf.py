@@ -45,7 +45,7 @@ def pdf(X, m, S):
     # Calculate PDF values
     P = norm_factor * np.exp(exponent)
 
-    # Set minimum value for PDF
+    # Set minimum value to the PDF
     P = np.maximum(P, 1e-300)
 
     return P
