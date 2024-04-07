@@ -24,20 +24,25 @@ def maximization(X, g):
 
     # Extracting dimensions
     n, d = X.shape
-    k, n = g.shape
+    k, _ = g.shape
 
     # Further validation
     if g.shape[1] != n:
         return None, None, None
+    # Checking if posterior probabilities sum to 1
+    if not np.isclose(np.sum(g, axis=0), 1).all():
+        return None, None, None
 
     # Calculating updated priors
-    pi = np.sum(g, axis=1) / n
+    pi = np.zeros((k,))
 
     # Calculating updated centroid means
-    m = np.dot(g, X) / np.sum(g, axis=1).reshape(-1, 1)
+    m = np.zeros((k, d))
 
     # Calculating updated covariance matrices
     S = np.zeros((k, d, d))
+
+    # Updating priors
     for i in range(k):
         S[i] = np.dot(g[i] * (X - m[i]).T, (X - m[i])) / np.sum(g[i])
 
