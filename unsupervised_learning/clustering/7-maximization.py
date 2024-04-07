@@ -24,11 +24,11 @@ def maximization(X, g):
 
     # Extracting dimensions
     n, d = X.shape
-    #k, _ = g.shape
 
     # Further validation
     if g.shape[1] != n:
         return None, None, None
+    # Number of clusters
     k = g.shape[0]
     if g.shape[0] != k:
         return None, None, None
@@ -45,7 +45,7 @@ def maximization(X, g):
     # Calculating updated covariance matrices
     S = np.zeros((k, d, d))
 
-    # Updating priors
+    # Updating priors probabilities, centroid means, and covariance matrices
     for i in range(k):
         pi[i] = np.sum(g[i], axis=0) / n
         m[i] = np.dot(g[i], X) / np.sum(g[i], axis=0)
