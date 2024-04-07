@@ -17,8 +17,6 @@ def expectation_maximization(X, k, iterations=1000, tol=1e-5, verbose=False):
         - iterations: positive int, number of iterations
         - tol: non-negative float, tolerance of log likelihood
         - verbose: bool for printing information
-            - i: is the nu;ber of iterations of the EM algorithm
-            - l: is the log likelihood, rounded to 5 decimal places
     Returns: pi, m, S, g, l, or None, None, None, None, None on failure
           pi: np.ndarray (k,) of priors for each cluster
           m: np.ndarray (k, d) of centroid means for each cluster
@@ -41,28 +39,30 @@ def expectation_maximization(X, k, iterations=1000, tol=1e-5, verbose=False):
 
     # Initialization
     pi, m, S = initialize(X, k)
-    g, l = expectation(X, pi, m, S)
+    g, log_likelihood = expectation(X, pi, m, S)
 
     # Store the previous log likelihood
-    prev_l = l
+    prev_l = 0
 
     # EM iterations
     for i in range(iterations):
-        pi, m, S = maximization(X, g)
-        g, l = expectation(X, pi, m, S)
-
         # Verbose mode: printing log likelihood after every 10 iterations
-        if verbose:
-            if i % 10 == 0:
-                print('Log Likelihood after {} iterations: {}'.format(
-                    i, l), np.round(l, 5))
+        if verbose and i % 10 == 0:
+            print('Log Likelihood after {} iterations: {}'.format(
+                i, log_likelihood.round(5)))
+        # Maximization step
+        pi, m, S = maximization(X, g)
+        # Expectation step
+        g, log_likelihood = expectation(X, pi, m, S)
+
         # Check convergence
-        if abs(l - prev_l) <= tol:
+        if np.abs(log_likelihood - prev_l) <= tol:
             break
-        prev_l = l
+        # Update previous log likelihood
+        prev_l = log_likelihood
 
     # Final log likelihood
     if verbose:
         print('Log Likelihood after {} iterations: {}'.format(
-            i+1, l), np.round(l, 5))
-    return pi, m, S, g, l
+            i+1, log_likelihood.round(5)))
+    return pi, m, S, g, log_likelihood
