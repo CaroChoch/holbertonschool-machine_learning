@@ -15,8 +15,10 @@ def gmm(X, k):
         - pi: np.ndarray, (k,), priors for each cluster
         - m: np.ndarray, (k, d), centroid means for each cluster
         - S: np.ndarray, (k, d, d), covariance matrices for each cluster
-        - clss: np.ndarray of shape (n,) containing the cluster indices for each data point
-        - bic: np.ndarray of shape (kmax - kmin + 1) containing the BIC value for each cluster size tested
+        - clss: np.ndarray of shape (n,) containing the cluster indices
+        for each data point
+        - bic: np.ndarray of shape (kmax - kmin + 1) containing the BIC
+        value for each cluster size tested
     """
     # Create the GMM object
     gaussian_mixture = sklearn.mixture.GaussianMixture(n_components=k).fit(X)
