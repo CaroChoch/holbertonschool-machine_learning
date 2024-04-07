@@ -75,7 +75,7 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
         pi, m, S, _, like = expectation_maximization(
             X, k, iterations, tol, verbose)
         # Calculate the number of parameters
-        p = k * d + k * d * (d + 1) / 2 + k - 1
+        p = k + k * d + k * d * (d + 1) // 2 - 1
         # Store the log likelihood
         log_likelihood.append(like)
         # Calculate the BIC
