@@ -24,10 +24,13 @@ def maximization(X, g):
 
     # Extracting dimensions
     n, d = X.shape
-    k, _ = g.shape
+    #k, _ = g.shape
 
     # Further validation
     if g.shape[1] != n:
+        return None, None, None
+    k = g.shape[0]
+    if g.shape[0] != k:
         return None, None, None
     # Checking if posterior probabilities sum to 1
     if not np.isclose(np.sum(g, axis=0), 1).all():
@@ -44,7 +47,9 @@ def maximization(X, g):
 
     # Updating priors
     for i in range(k):
-        S[i] = np.dot(g[i] * (X - m[i]).T, (X - m[i])) / np.sum(g[i])
+        pi[i] = np.sum(g[i], axis=0) / n
+        m[i] = np.dot(g[i], X) / np.sum(g[i], axis=0)
+        S[i] = np.dot(g[i] * (X - m[i]).T, (X - m[i])) / np.sum(g[i], axis=0)
 
     # Return updated priors, centroid means, and covariance matrices
     return pi, m, S
