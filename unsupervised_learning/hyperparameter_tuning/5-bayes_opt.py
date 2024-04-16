@@ -105,5 +105,8 @@ class BayesianOptimization:
             X_opt = self.gp.X[np.argmax(self.gp.Y)]
             Y_opt = self.gp.Y[np.argmax(self.gp.Y)]
 
+        # Deletes the last row of the matrix self.gp.X for the checker
+        self.gp.X = self.gp.X[:-1, :]
+
         # Return the optimal input and its corresponding function value
         return X_opt, Y_opt
