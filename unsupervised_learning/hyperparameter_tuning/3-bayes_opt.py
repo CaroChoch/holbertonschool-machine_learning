@@ -17,12 +17,12 @@ class BayesianOptimization:
             - f is the black-box function to be optimized
             - X_init is a numpy.ndarray of shape (t, 1) representing the inputs
               already sampled with the black-box function
-            - Y_init is a numpy.ndarray of shape (t, 1) representing the outputs
+            - Y_init : numpy.ndarray of shape (t, 1) representing the outputs
               of the black-box function for each input in X_init
             - t is the number of initial samples
-            - bounds is a tuple of (min, max) representing the bounds of the
+            - bounds : tuple of (min, max) representing the bounds of the
               space in which to look for the optimal point
-            - ac_samples is the number of samples that should be analyzed during
+            - ac_samples : the number of samples that should be analyzed during
               acquisition
             - l is the length parameter for the kernel
             - sigma_f is the standard deviation given to the output of the
@@ -37,4 +37,3 @@ class BayesianOptimization:
         self.X_s = np.linspace(_min, _max, ac_samples).reshape(-1, 1)
         self.xsi = xsi
         self.minimize = minimize
-        
