@@ -1,4 +1,4 @@
-#!/usr/bin/env python3#!/usr/bin/env python3
+#!/usr/bin/env python3
 """ Class Gaussian Process """
 import numpy as np
 
