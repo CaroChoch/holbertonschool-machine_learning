@@ -98,12 +98,12 @@ class BayesianOptimization:
         # value and its corresponding input
         if self.minimize:
             X_opt = self.gp.X[np.argmin(self.gp.Y)]
-            Y_opt = np.min(self.gp.Y)
+            Y_opt = self.gp.Y[np.argmin(self.gp.Y)]
         # If optimization is for maximization, find the maximum observed value
         # and its corresponding input
         else:
             X_opt = self.gp.X[np.argmax(self.gp.Y)]
-            Y_opt = np.max(self.gp.Y)
+            Y_opt = self.gp.Y[np.argmax(self.gp.Y)]
 
         # Return the optimal input and its corresponding function value
         return X_opt, Y_opt
