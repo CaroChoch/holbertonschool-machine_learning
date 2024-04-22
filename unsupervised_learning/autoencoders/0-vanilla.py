@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """ Vanilla Autoencoder """
 import tensorflow.keras as keras
 
