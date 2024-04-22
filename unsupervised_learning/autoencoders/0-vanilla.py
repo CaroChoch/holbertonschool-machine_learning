@@ -31,7 +31,7 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
         latent_dims,
         activation='relu')(enc_hidden)
     # Create encoder model
-    encoder = keras.models.Model(input_layer, latent_representation)
+    encoder_model = keras.models.Model(input_layer, latent_representation)
 
     # DECODER
     # Input layer
@@ -48,19 +48,19 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
         input_dims,
         activation='sigmoid')(dec_hidden)
     # Create decoder model
-    decoder = keras.models.Model(
+    decoder_model = keras.models.Model(
         latent_input,
         output_layer)
 
     # AUTOENCODEUR
-    # Input layer
-    reconstructed_input = decoder(latent_representation)
     # Create autoencoder model
-    auto = keras.models.Model(input_layer, reconstructed_input)
+    autoencoder_model = keras.models.Model(
+        inputs=input_layer,
+        outputs=decoder_model(encoder_model(input_layer)))
 
     # Compile autoencoder model using adam optimization and
     # binary cross-entropy loss
-    auto.compile(optimizer='adam', loss='binary_crossentropy')
+    autoencoder_model.compile(optimizer='adam', loss='binary_crossentropy')
 
     # Return encoder, decoder, auto
-    return encoder, decoder, auto
+    return encoder_model, decoder_model, autoencoder_model
