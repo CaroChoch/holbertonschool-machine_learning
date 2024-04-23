@@ -52,7 +52,7 @@ def autoencoder(input_dims, filters, latent_dims):
         dec_hidden = keras.layers.UpSampling2D((2, 2))(dec_hidden)
     # Last convolutional layer
     dec_hidden = keras.layers.Conv2D(
-        filters=filters[-1],
+        filters=filters[0],
         kernel_size=(3, 3),
         activation='relu',
         strides=(1, 1),
