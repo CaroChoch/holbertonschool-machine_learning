@@ -42,7 +42,7 @@ def autoencoder(input_dims, filters, latent_dims):
     dec_hidden = latent_input
 
     # Convolutional layers
-    for i in reversed(filters[:-1]):
+    for i in reversed(filters[1:]):
         dec_hidden = keras.layers.Conv2D(
             filters=i,
             kernel_size=(3, 3),
