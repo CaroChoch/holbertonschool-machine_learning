@@ -47,6 +47,7 @@ def autoencoder(input_dims, filters, latent_dims):
             filters=i,
             kernel_size=(3, 3),
             activation='relu',
+            strides=(1, 1),
             padding='same')(dec_hidden)
         dec_hidden = keras.layers.UpSampling2D((2, 2))(dec_hidden)
     # Last convolutional layer
@@ -54,6 +55,7 @@ def autoencoder(input_dims, filters, latent_dims):
         filters=filters[-1],
         kernel_size=(3, 3),
         activation='relu',
+        strides=(1, 1),
         padding='valid')(dec_hidden)
     dec_hidden = keras.layers.UpSampling2D((2, 2))(dec_hidden)
     # Decoder output
@@ -67,14 +69,14 @@ def autoencoder(input_dims, filters, latent_dims):
     decoder_model = keras.models.Model(
         inputs=latent_input,
         outputs=dec_output)
-    
+
     # AUTOENCODEUR
     # Create autoencoder model
     autoencoder_model = keras.models.Model(
-    inputs=input_layer,
-    outputs=decoder_model(encoder_model(input_layer)))
-    
+        inputs=input_layer,
+        outputs=decoder_model(encoder_model(input_layer)))
+
     autoencoder_model.compile(optimizer='adam', loss='binary_crossentropy')
-    
+
     # Return encoder, decoder, autoencoder
     return encoder_model, decoder_model, autoencoder_model
