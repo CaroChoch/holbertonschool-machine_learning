@@ -18,7 +18,7 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
         - auto: the full autoencoder model
     """
 
-    global sampling
+    #global sampling
 
     def sampling(args):
         """
@@ -48,7 +48,7 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
         output_shape=(latent_dims,))([z_mean, z_log_var])
 
     encoder = K.models.Model(
-        encoder_input, [z, z_mean, z_log_var], name='encoder')
+        encoder_input, [z_mean, z_log_var, z], name='encoder')
 
     # Decoder
     latent_input = K.layers.Input(shape=(latent_dims,))
