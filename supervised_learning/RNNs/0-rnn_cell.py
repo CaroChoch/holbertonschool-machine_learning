@@ -13,11 +13,13 @@ class RNNCell:
             - h is the dimensionality of the hidden state
             - o is the dimensionality of the outputs
         """
-        # Initialization of Weights of the cell for the concatenated hidden state and input data
+        # Initialization of Weights of the cell for the concatenated hidden
+        # state and input data
         self.Wh = np.random.randn(h + i, h)
         # Initialization of Weights of the cell that will be used in the output
         self.Wy = np.random.randn(h, o)
-        # Initialization of biases of the cell for the concatenated hidden state and input data
+        # Initialization of biases of the cell for the concatenated hidden
+        # state and input data
         self.bh = np.zeros((1, h))
         # Initialization of biases of the cell that will be used in the output
         self.by = np.zeros((1, o))
