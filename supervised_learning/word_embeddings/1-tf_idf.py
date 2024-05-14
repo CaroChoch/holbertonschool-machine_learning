@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """ Creates a TF-IDF embedding """
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import numpy as np
 
 
@@ -17,13 +17,24 @@ def tf_idf(sentences, vocab=None):
             * f is the number of features analyzed
         - features is a list of the features used for embeddings
     """
-    # Creates a TfidfVectorizer instance, specifying the vocabulary if provided
-    vectorizer = TfidfVectorizer(vocabulary=vocab)
-    # Transforms the input sentences into a TF-IDF representation
-    X = vectorizer.fit_transform(sentences)
-    # Converts the TF-IDF representation into a dense matrix
+    # Checking if vocab is provided, if not, using all words from sentences
+    if vocab is None:
+        # Initializing TF-IDF vectorizer
+        vectorizer = TfidfVectorizer()
+        # Fitting the vectorizer and transforming sentences into vectors
+        X = vectorizer.fit_transform(sentences)
+        # Getting the vocabulary from the vectorizer
+        vocab = vectorizer.get_feature_names()
+    else:
+        # Initializing TF-IDF vectorizer with provided vocab
+        vectorizer = TfidfVectorizer(vocabulary=vocab)
+        # Fitting the vectorizer and transforming sentences into vectors
+        X = vectorizer.fit_transform(sentences)
+
+    # Converting the sparse matrix X into a dense numpy array
     embeddings = X.toarray()
-    # Getting the list of features (words) used in TF-IDF representation
-    features = vectorizer.get_feature_names_out()
-    # Returns the embeddings (TF-IDF matrix) and  the list of features
+    # Assigning the vocabulary to the features list
+    features = vocab
+
+    # Returning the embeddings and features
     return embeddings, features
