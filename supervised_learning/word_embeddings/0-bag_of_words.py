@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """ Creates a bag of words embedding matrix """
-from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
-
+import re
 
 def bag_of_words(sentences, vocab=None):
     """
@@ -17,23 +16,28 @@ def bag_of_words(sentences, vocab=None):
             * f is the number of features analyzed
         - features is a list of the features used for embeddings
     """
-    # Checking if vocab is provided, if not, using all words from sentences
+    # Tokenize sentences into words and normalize by lowercasing and removing punctuation
+    tokenized_sentences = [re.findall(r'\b\w+\b', sentence.lower()) for sentence in sentences]
+
+    # If no vocab is provided, create vocab from all unique words in the sentences
     if vocab is None:
-        # Initializing CountVectorizer
-        vectorizer = CountVectorizer()
-        # Fitting the vectorizer and transforming sentences into vectors
-        X = vectorizer.fit_transform(sentences)
-        # Getting the vocabulary from the vectorizer
-        vocab = vectorizer.get_feature_names_out()
-    else:
-        # Initializing CountVectorizer with provided vocab
-        vectorizer = CountVectorizer(vocabulary=vocab)
-        # Fitting the vectorizer and transforming sentences into vectors
-        X = vectorizer.fit_transform(sentences)
-    # Converting the sparse matrix X into a dense numpy array
-    embedding = X.toarray()
-    # Assigning the vocabulary to the features list
+        vocab = sorted(set(word for sentence in tokenized_sentences for word in sentence))
+
+    # Create a word-to-index mapping
+    word_to_index = {word: idx for idx, word in enumerate(vocab)}
+
+    # Initialize the embedding matrix with zeros
+    embeddings = np.zeros((len(sentences), len(vocab)), dtype=int)
+
+    # Populate the embedding matrix
+    for i, sentence in enumerate(tokenized_sentences):
+        for word in sentence:
+            if word in word_to_index:
+                embeddings[i, word_to_index[word]] += 1
+
+    # The list of features is the vocabulary used
     features = vocab
 
-    # Returning the embeddings and features
-    return embedding, features
+    return embeddings, features
+
+
