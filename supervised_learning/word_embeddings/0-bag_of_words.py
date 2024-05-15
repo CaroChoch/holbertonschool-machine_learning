@@ -16,6 +16,7 @@ def preprocess_sentence(sentence):
     # Extract words from the processed sentence
     return re.findall(r'\w+', processed_sentence)
 
+
 def bag_of_words(sentences, vocab=None):
     """
     Creates a bag of words embedding matrix
@@ -39,7 +40,8 @@ def bag_of_words(sentences, vocab=None):
         preprocessed_sentence = preprocess_sentence(sentence)
         preprocessed_sentences.append(preprocessed_sentence)
 
-    # If no vocab is provided, create vocab from all unique words in the sentences
+    # If no vocab is provided, create vocab from all unique words
+    # in the sentences
     if vocab is None:
         all_words = []
         for sentence in preprocessed_sentences:
