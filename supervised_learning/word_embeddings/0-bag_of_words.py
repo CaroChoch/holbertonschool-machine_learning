@@ -17,24 +17,23 @@ def bag_of_words(sentences, vocab=None):
             * f is the number of features analyzed
         - features is a list of the features used for embeddings
     """
-   # Checking if vocab is provided, if not, using all words from sentences
+    # Checking if vocab is provided, if not, using all words from sentences
     if vocab is None:
-        # Initializing TF-IDF vectorizer
+        # Initializing CountVectorizer
         vectorizer = CountVectorizer()
         # Fitting the vectorizer and transforming sentences into vectors
         X = vectorizer.fit_transform(sentences)
         # Getting the vocabulary from the vectorizer
         vocab = vectorizer.get_feature_names_out()
     else:
-        # Initializing TF-IDF vectorizer with provided vocab
+        # Initializing CountVectorizer with provided vocab
         vectorizer = CountVectorizer(vocabulary=vocab)
         # Fitting the vectorizer and transforming sentences into vectors
         X = vectorizer.fit_transform(sentences)
-
     # Converting the sparse matrix X into a dense numpy array
-    embeddings = X.toarray()
+    embedding = X.toarray()
     # Assigning the vocabulary to the features list
     features = vocab
 
     # Returning the embeddings and features
-    return embeddings, features
+    return embedding, features
