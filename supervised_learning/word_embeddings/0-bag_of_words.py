@@ -3,6 +3,19 @@
 import numpy as np
 import re
 
+
+def preprocess_sentence(sentence):
+    """
+    Preprocess a sentence by removing possessives and converting to lowercase.
+    Arguments:
+        - sentence: a string representing a sentence
+    Returns: a list of words
+    """
+    # Remove possessive 's and convert to lowercase
+    processed_sentence = re.sub(r"\b(\w+)'s\b", r"\1", sentence.lower())
+    # Extract words from the processed sentence
+    return re.findall(r'\w+', processed_sentence)
+
 def bag_of_words(sentences, vocab=None):
     """
     Creates a bag of words embedding matrix
@@ -16,28 +29,38 @@ def bag_of_words(sentences, vocab=None):
             * f is the number of features analyzed
         - features is a list of the features used for embeddings
     """
-    # Tokenize sentences into words and normalize by lowercasing and removing punctuation
-    tokenized_sentences = [re.findall(r'\b\w+\b', sentence.lower()) for sentence in sentences]
+    # Check if sentences is a list
+    if not isinstance(sentences, list):
+        raise TypeError("sentences should be a list.")
+
+    # Preprocess all sentences
+    preprocessed_sentences = []
+    for sentence in sentences:
+        preprocessed_sentence = preprocess_sentence(sentence)
+        preprocessed_sentences.append(preprocessed_sentence)
 
     # If no vocab is provided, create vocab from all unique words in the sentences
     if vocab is None:
-        vocab = sorted(set(word for sentence in tokenized_sentences for word in sentence))
+        all_words = []
+        for sentence in preprocessed_sentences:
+            all_words.extend(sentence)
+        vocab = sorted(set(all_words))
 
     # Create a word-to-index mapping
-    word_to_index = {word: idx for idx, word in enumerate(vocab)}
+    word_to_index = {}
+    for idx, word in enumerate(vocab):
+        word_to_index[word] = idx
 
     # Initialize the embedding matrix with zeros
-    embeddings = np.zeros((len(sentences), len(vocab)), dtype=int)
+    num_sentences = len(sentences)
+    num_features = len(vocab)
+    embeddings = np.zeros((num_sentences, num_features), dtype=int)
 
     # Populate the embedding matrix
-    for i, sentence in enumerate(tokenized_sentences):
+    for i, sentence in enumerate(preprocessed_sentences):
         for word in sentence:
             if word in word_to_index:
-                embeddings[i, word_to_index[word]] += 1
+                word_index = word_to_index[word]
+                embeddings[i, word_index] += 1
 
-    # The list of features is the vocabulary used
-    features = vocab
-
-    return embeddings, features
-
-
+    return embeddings, vocab
