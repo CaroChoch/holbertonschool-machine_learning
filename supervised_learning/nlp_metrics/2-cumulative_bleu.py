@@ -82,13 +82,13 @@ def cumulative_bleu(references, sentence, n):
     """
     # Calculating the BLEU score for each n-gram
     bleu_scores = []
-    for i in range (1, n + 1):
+    for i in range(1, n + 1):
         bleu_scores.append(ngram_bleu(references, sentence, i))
-    
+
     # Calculating the weights for each n-gram
     weights = [1 / n for i in range(n)]
-    
+
     # Calculating the cumulative BLEU score
     cumulative_bleu_score = np.exp(np.sum(weights * np.log(bleu_scores)))
-    
+
     return cumulative_bleu_score
