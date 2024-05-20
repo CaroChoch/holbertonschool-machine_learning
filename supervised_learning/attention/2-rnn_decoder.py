@@ -17,7 +17,7 @@ class RNNDecoder(tf.keras.layers.Layer):
               the RNN cell
             - batch is an integer representing the batch size
         """
-        super(RNNDecoder).__init__()
+        super(RNNDecoder, self).__init__()
 
         # Embedding layer to convert words from the vocabulary into embedding
         # vectors
