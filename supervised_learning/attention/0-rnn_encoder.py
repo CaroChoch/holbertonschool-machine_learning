@@ -4,7 +4,6 @@ Class RNNEncoder that inherits from tensorflow.keras.layers.Layer
 to encode for machine translation
 """
 import tensorflow as tf
-import numpy as np
 
 
 class RNNEncoder(tf.keras.layers.Layer):
