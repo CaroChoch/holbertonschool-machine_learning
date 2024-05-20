@@ -60,21 +60,16 @@ class RNNDecoder(tf.keras.layers.Layer):
         x = self.embedding(x)
 
         # Concatenate the context vector with the input embedding
-        context_expanded = tf.expand_dims(
-            context,
-            axis=1)  # (batch_size, 1, units)
-        x = tf.concat(
-            [context_expanded, x],
-            axis=-1)  # (batch_size, 1, units + embedding_dim)
+        context_expanded = tf.expand_dims(context, axis=1)
+        inputs = tf.concat([context_expanded, x], axis=-1)
 
         # Pass the concatenated vector though the GRU layer
-        outputs, s = self.gru(
-            x, initial_state=s_prev)  # output shape: (batch_size, 1, units)
+        outputs, s = self.gru(inputs=inputs)
 
         # Reshape the output to match the dense layer input requirements
         outputs_reshaped = tf.reshape(
             outputs, shape=(outputs.shape[0],
-                           outputs.shape[2]))  # (batch_size, units)
+                            outputs.shape[2]))  # (batch_size, units)
 
         # Apply the dense layer to get the final output word probabilities
         y = self.F(outputs_reshaped)  # shape: (batch_size, vocab)
