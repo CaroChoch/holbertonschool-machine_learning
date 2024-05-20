@@ -68,18 +68,16 @@ class RNNDecoder(tf.keras.layers.Layer):
             axis=-1)  # (batch_size, 1, units + embedding_dim)
 
         # Pass the concatenated vector though the GRU layer
-        output, s = self.gru(
+        outputs, s = self.gru(
             x, initial_state=s_prev)  # output shape: (batch_size, 1, units)
 
         # Reshape the output to match the dense layer input requirements
-        batch_size = tf.shape(output)[0]  # get the batch size dynamically
-        units = tf.shape(output)[2]  # get the units size dynamically
-        output_reshaped = tf.reshape(
-            output,
-            (batch_size, units))  # (batch_size, units)
+        outputs_reshaped = tf.reshape(
+            outputs, shape=(outputs.shape[0],
+                           outputs.shape[2]))  # (batch_size, units)
 
         # Apply the dense layer to get the final output word probabilities
-        y = self.F(output_reshaped)  # shape: (batch_size, vocab)
+        y = self.F(outputs_reshaped)  # shape: (batch_size, vocab)
 
         # Return the final output word and the new decoder hidden state
         return y, s
