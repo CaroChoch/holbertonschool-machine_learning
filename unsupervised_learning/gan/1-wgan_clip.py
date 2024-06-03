@@ -18,14 +18,14 @@ class WGAN_clip(keras.Model):
         self.discriminator = discriminator
         self.batch_size = batch_size
         self.disc_iter = disc_iter
+        self.clip_const = 1.0  # standard value but can be changed if necessary
 
         self.learning_rate = learning_rate
         self.beta_1 = .5  # standard value, but can be changed if necessary
         self.beta_2 = .9  # standard value, but can be changed if necessary
 
         # define the generator loss and optimizer:
-        self.generator.loss = lambda x: (
-            tf.math.reduce_mean(x) - tf.math.reduce_mean(tf.ones(x.shape)))
+        self.generator.loss = lambda x: - tf.math.reduce_mean(x)
         self.generator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
             beta_1=self.beta_1,
@@ -34,20 +34,9 @@ class WGAN_clip(keras.Model):
             optimizer=generator.optimizer,
             loss=generator.loss)
 
-        # Define the generator loss and optimizer:
-        self.generator.loss = lambda x: (
-            -tf.math.reduce_mean(self.discriminator(x)))
-        self.generator.optimizer = keras.optimizers.Adam(
-            learning_rate=self.learning_rate,
-            beta_1=self.beta_1,
-            beta_2=self.beta_2)
-        self.generator.compile(
-            optimizer=self.generator.optimizer,
-            loss=self.generator.loss)
-
         # Define the discriminator loss and optimizer:
         self.discriminator.loss = lambda x, y: (
-            tf.math.reduce_mean(y) - tf.math.reduce_mean(x))
+            -tf.math.reduce_mean(x) + tf.math.reduce_mean(y))
         self.discriminator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
             beta_1=self.beta_1,
@@ -71,33 +60,45 @@ class WGAN_clip(keras.Model):
         return tf.gather(self.real_examples, random_indices)
 
     # Overloading train_step()
-    def train_step(self, useless_argument):
+    def train_step(self, data):
+        """
+        Performs one training step for the GAN.
+
+        Arguments:
+            - data: Not used, but required by the Keras API.
+
+        Returns:
+            dict: Dictionary containing the discriminator and generator loss.
+        """
+        # Training the discriminator
         for _ in range(self.disc_iter):
-            # Compute the loss for the discriminator in a tape watching
-            # the discriminator's weights
+            real_samples = self.get_real_sample()
+            fake_samples = self.get_fake_sample(training=True)
+
             with tf.GradientTape() as tape:
-                real_samples = self.get_real_sample()
-                fake_samples = self.get_fake_sample(training=True)
-                discr_loss = self.discriminator.loss(
-                    self.discriminator(fake_samples),
-                    self.discriminator(real_samples))
-            grads = tape.gradient(
-                discr_loss,
-                self.discriminator.trainable_variables)
+                real_output = self.discriminator(real_samples, training=True)
+                fake_output = self.discriminator(fake_samples, training=True)
+                discr_loss = self.discriminator.loss(real_output, fake_output)
+
+            gradients = tape.gradient(
+                discr_loss, self.discriminator.trainable_variables)
             self.discriminator.optimizer.apply_gradients(
-                zip(grads, self.discriminator.trainable_variables))
+                zip(gradients, self.discriminator.trainable_variables))
 
-            # Clip the weights (of the discriminator) between -1 and 1
-            for var in self.discriminator.trainable_variables:
-                var.assign(tf.clip_by_value(var, -1.0, 1.0))
+            # Clip the weights of the discriminator
+            for weights in self.discriminator.trainable_variables:
+                weights.assign(tf.clip_by_value(weights,
+                                                -self.clip_const,
+                                                self.clip_const))
 
-        # Compute the loss for the generator in a tape watching the
-        # generator's weights
+        # Training the generator
         with tf.GradientTape() as tape:
             fake_samples = self.get_fake_sample(training=True)
-            gen_loss = self.generator.loss(fake_samples)
-        grads = tape.gradient(gen_loss, self.generator.trainable_variables)
+            fake_output = self.discriminator(fake_samples, training=False)
+            gen_loss = self.generator.loss(fake_output)
+
+        gradients = tape.gradient(gen_loss, self.generator.trainable_variables)
         self.generator.optimizer.apply_gradients(
-            zip(grads, self.generator.trainable_variables))
+            zip(gradients, self.generator.trainable_variables))
 
         return {"discr_loss": discr_loss, "gen_loss": gen_loss}
