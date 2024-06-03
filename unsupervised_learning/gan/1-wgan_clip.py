@@ -29,7 +29,7 @@ class WGAN_clip(keras.Model):
                  real_examples, batch_size=200, disc_iter=2,
                  learning_rate=.005):
         """
-        Initializes the SimpleGAN with the given parameters.
+        Initializes the Wasserstein GANs with the given parameters.
         """
         super().__init__()  # run the __init__ of keras.Model first.
         self.latent_generator = latent_generator
