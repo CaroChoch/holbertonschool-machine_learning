@@ -8,9 +8,29 @@ import matplotlib.pyplot as plt
 
 
 class WGAN_clip(keras.Model):
+    """
+    A simple Generative Adversarial Network (GAN) class that combines a
+    generator and a discriminator.
+
+    Attributes:
+        - latent_generator (function): Function to generate latent space
+            vectors.
+        - real_examples (np.ndarray): Array of real examples for training.
+        - generator (tf.keras.Model): The generator model.
+        - discriminator (tf.keras.Model): The discriminator model.
+        - batch_size (int): Size of the training batch.
+        - disc_iter (int): Number of discriminator iterations per
+            generator iteration.
+        - learning_rate (float): Learning rate for the optimizers.
+        - beta_1 (float): Beta 1 parameter for the Adam optimizer.
+        - beta_2 (float): Beta 2 parameter for the Adam optimizer.
+    """
     def __init__(self, generator, discriminator, latent_generator,
                  real_examples, batch_size=200, disc_iter=2,
                  learning_rate=.005):
+        """
+        Initializes the SimpleGAN with the given parameters.
+        """
         super().__init__()  # run the __init__ of keras.Model first.
         self.latent_generator = latent_generator
         self.real_examples = real_examples
@@ -47,12 +67,32 @@ class WGAN_clip(keras.Model):
 
     # generator of real samples of size batch_size
     def get_fake_sample(self, size=None, training=False):
+        """
+        Generates a batch of fake samples using the generator.
+
+        Arguments:
+            - size (int, optional): Size of the batch. Defaults to None.
+            - training (bool, optional): Whether the generator is in training
+                mode. Defaults to False.
+
+        Returns:
+            tf.Tensor: A batch of fake samples.
+        """
         if not size:
             size = self.batch_size
         return self.generator(self.latent_generator(size), training=training)
 
     # generator of fake samples of size batch_size
     def get_real_sample(self, size=None):
+        """
+        Selects a batch of real samples from the real_examples.
+
+        Arguments:
+            - size (int, optional): Size of the batch. Defaults to None.
+
+        Returns:
+            tf.Tensor: A batch of real samples.
+        """
         if not size:
             size = self.batch_size
         sorted_indices = tf.range(tf.shape(self.real_examples)[0])
