@@ -5,7 +5,7 @@ from tensorflow import keras
 
 
 # load the pictures
-def convolutional_GenDiscr() :
+def convolutional_GenDiscr():
     """
     Create a generator and a discriminator
     """
@@ -43,26 +43,26 @@ def convolutional_GenDiscr() :
         """
         Create a discriminator network
         """
-        input_2 = tf.keras.layers.Input(shape=(16, 16, 1))
+        input_2 = keras.layers.Input(shape=(16, 16, 1))
 
-        conv2d_3 = tf.keras.layers.Conv2D(
+        conv2d_3 = keras.layers.Conv2D(
             32, (3, 3), strides=(1, 1), padding="same")(input_2)
-        max_pooling2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(conv2d_3)
-        activation_4 = tf.keras.layers.Activation("tanh")(max_pooling2d)
-        conv2d_4 = tf.keras.layers.Conv2D(
+        max_pooling2d = keras.layers.MaxPooling2D(pool_size=(2, 2))(conv2d_3)
+        activation_4 = keras.layers.Activation("tanh")(max_pooling2d)
+        conv2d_4 = keras.layers.Conv2D(
             64, (3, 3), strides=(1, 1), padding="same")(activation_4)
-        max_pooling2d_1 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(conv2d_4)
-        activation_5 = tf.keras.layers.Activation("tanh")(max_pooling2d_1)
-        conv2d_5  = tf.keras.layers.Conv2D(
+        max_pooling2d_1 = keras.layers.MaxPooling2D(pool_size=(2, 2))(conv2d_4)
+        activation_5 = keras.layers.Activation("tanh")(max_pooling2d_1)
+        conv2d_5 = keras.layers.Conv2D(
             128, (3, 3), strides=(1, 1), padding="same")(activation_5)
-        max_pooling2d_2 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(conv2d_5)
-        activation_6 = tf.keras.layers.Activation("tanh")(max_pooling2d_2)
-        conv2d_6 = tf.keras.layers.Conv2D(
+        max_pooling2d_2 = keras.layers.MaxPooling2D(pool_size=(2, 2))(conv2d_5)
+        activation_6 = keras.layers.Activation("tanh")(max_pooling2d_2)
+        conv2d_6 = keras.layers.Conv2D(
             256, (3, 3), strides=(1, 1), padding="same")(activation_6)
-        max_pooling2d_3 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(conv2d_6)
-        activation_7 = tf.keras.layers.Activation("tanh")(max_pooling2d_3)
-        flatten = tf.keras.layers.Flatten()(activation_7)
-        dense_1 = tf.keras.layers.Dense(1, activation="tanh")(flatten)
+        max_pooling2d_3 = keras.layers.MaxPooling2D(pool_size=(2, 2))(conv2d_6)
+        activation_7 = keras.layers.Activation("tanh")(max_pooling2d_3)
+        flatten = keras.layers.Flatten()(activation_7)
+        dense_1 = keras.layers.Dense(1, activation="tanh")(flatten)
         return keras.models.Model(input_2, dense_1, name="discriminator")
 
-    return get_generator() , get_discriminator()
+    return get_generator(), get_discriminator()
