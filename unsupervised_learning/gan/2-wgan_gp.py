@@ -156,22 +156,26 @@ class WGAN_GP(keras.Model):
             fake_samples = self.get_fake_sample(training=True)
 
             with tf.GradientTape() as tape:
-                real_output = self.discriminator(real_samples, training=True)
-                fake_output = self.discriminator(fake_samples, training=True)
-                discr_loss = self.discriminator.loss(real_output, fake_output)
+                
+                
 
                 # get the interpolated sample
                 interpolated_sample = self.get_interpolated_sample(
                     real_samples, fake_samples)
                 
+
+                real_output = self.discriminator(real_samples, training=True)
+                fake_output = self.discriminator(fake_samples, training=True)
+                discr_loss = self.discriminator.loss(real_output, fake_output)
+
                 # compute the gradient penalty
                 gp = self.gradient_penalty(interpolated_sample)
                 discr_loss += self.lambda_gp * gp
 
-                gradients = tape.gradient(
-                    discr_loss, self.discriminator.trainable_variables)
-                self.discriminator.optimizer.apply_gradients(
-                    zip(gradients, self.discriminator.trainable_variables))
+            gradients = tape.gradient(
+                discr_loss, self.discriminator.trainable_variables)
+            self.discriminator.optimizer.apply_gradients(
+                zip(gradients, self.discriminator.trainable_variables))
 
         # Training the generator
         with tf.GradientTape() as tape:
