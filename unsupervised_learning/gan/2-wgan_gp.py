@@ -3,8 +3,6 @@
 
 import tensorflow as tf
 from tensorflow import keras
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 class WGAN_GP(keras.Model):
@@ -156,13 +154,10 @@ class WGAN_GP(keras.Model):
             fake_samples = self.get_fake_sample(training=True)
 
             with tf.GradientTape() as tape:
-                
-                
 
                 # get the interpolated sample
                 interpolated_sample = self.get_interpolated_sample(
                     real_samples, fake_samples)
-                
 
                 real_output = self.discriminator(real_samples, training=True)
                 fake_output = self.discriminator(fake_samples, training=True)
