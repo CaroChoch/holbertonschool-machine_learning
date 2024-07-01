@@ -2,6 +2,12 @@
 
 This project implements a Deep Q-Learning agent to play the Atari Breakout game using the `gym` library and `keras-rl2`.
 
+
+
+https://github.com/CaroChoch/holbertonschool-machine_learning/assets/113856063/7ba6c767-fcad-4492-8e2f-2faf8b39ef38
+
+
+
 ## Prerequisites
 
 Make sure you have the following installed on your machine:
