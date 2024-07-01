@@ -7,14 +7,10 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 import tensorflow.keras as K
-from keras import __version__
 from rl.agents.dqn import DQNAgent
 from rl.memory import SequentialMemory
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.processors import Processor
-
-# Set TensorFlow Keras version to match Keras version
-tf.keras.__version__ = __version__
 
 # Constants for input shape and window length
 INPUT_SHAPE = (84, 84)
