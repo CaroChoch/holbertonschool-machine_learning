@@ -7,7 +7,7 @@ This project implements a Deep Q-Learning agent to play the Atari Breakout game 
 Make sure you have the following installed on your machine:
 
 - Python 3.9
-- pip (recommended version)
+- pip
 
 ## Installation
 
