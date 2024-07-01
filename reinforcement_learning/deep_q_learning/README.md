@@ -81,6 +81,8 @@ The model uses a convolutional neural network to process input images and a DQN 
 
 This error can occur due to changes in the import paths of TensorFlow. To resolve this issue, ensure that the `callbacks.py` file has been modified to use `tensorflow.__version__` instead of `tensorflow.keras.__version__`.
 
+The `callbacks.py` file can be found at: /Users/carolinechochoy/Desktop/machine-learning-breakout/holbertonschool-machine_learning/reinforcement_learning/deep_q_learning/myenv_breakout/lib/python3.9/site-packages/rl/callbacks.py
+
 Example modification in `callbacks.py`:
 
 ```python
