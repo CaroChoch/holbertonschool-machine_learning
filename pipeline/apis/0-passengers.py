@@ -22,15 +22,17 @@ def availableShips(passengerCount):
     while url:
         response = requests.get(url)  # Make a GET request to the API
         data = response.json()  # Parse the JSON response
-        # Loop through the ships in the current page of results
+
+        # Loop through the results in the current page
         for ship in data['results']:
-            try:
-                # Check if the ship can hold at least passengerCount passengers
-                if int(ship['passengers']) >= passengerCount:
-                    # If it can, add the name of the ship to the list
-                    ships.append(ship['name'])
-            except ValueError:
-                pass  # Skip ships with unknown passenger capacity
+            # Replace commas in the 'passengers' field to handle large numbers
+            nb_passengers = ship['passengers'].replace(',', '')
+            # Check if the 'passengers' field is not 'n/a' or 'unknown'
+            # and meets the passengerCount criterion
+            if nb_passengers not in ['n/a', 'unknown'] and \
+               int(nb_passengers) >= passengerCount:
+                # Add the name of the ship to the list if it meets the criteria
+                ships.append(ship['name'])
 
         # Move to the next page of results
         url = data['next']
