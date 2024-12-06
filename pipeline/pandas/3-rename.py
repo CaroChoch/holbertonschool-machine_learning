@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+""" Rename the column Timestamp to Datetime and convert the values in the
+    'Datetime' column to datetime objects """
 
 import pandas as pd
 
