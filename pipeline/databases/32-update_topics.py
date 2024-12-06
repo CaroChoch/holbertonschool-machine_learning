@@ -8,8 +8,6 @@ def update_topics(mongo_collection, name, topics):
     Function that changes all topics of a school document based on the name
     Return : nothing
     """
-    if not mongo_collection or not name or not topics:
-        return None
 
     mongo_collection.update_many(
         {"name": name},
