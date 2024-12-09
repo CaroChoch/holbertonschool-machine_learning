@@ -3,7 +3,7 @@
 import numpy as np
 
 
-def epsilon_greedy(state, Q, epsilon):
+def epsilon_greedy(Q, state, epsilon):
     """
     Epsilon-greedy policy to choose actions
     Arguments:
@@ -51,7 +51,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
         # Reset environment to start a new episode
         state = env.reset()[0]
         # Choose initial action using epsilon-greedy policy
-        action = epsilon_greedy(state, Q, epsilon)
+        action = epsilon_greedy(Q, state, epsilon)
         # Initialize eligibility trace for Q table
         eligibility_trace = np.zeros_like(Q)
 
@@ -59,7 +59,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
             # Take action in the environment and observe new state and reward
             new_state, reward, done, truncated, _ = env.step(action)
             # Choose new action using epsilon-greedy policy for new state
-            new_action = epsilon_greedy(new_state, Q, epsilon)
+            new_action = epsilon_greedy(Q, new_state, epsilon)
 
             # Calculate TD error uning action-value form of Q
             td_error = (reward + gamma * Q[new_state, new_action]) \
@@ -81,7 +81,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
 
         # Decay epsilon according to exponential schedule
         epsilon = min_epsilon + (epsilon_init - min_epsilon) * np.exp(
-            - epsilon_decay * ep)
+            -epsilon_decay * ep)
 
     # Return the updated Q table
     return Q
