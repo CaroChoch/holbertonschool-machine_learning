@@ -54,43 +54,21 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100, alpha=0.1,
     Returns:
         numpy.ndarray: The updated Q-table after training.
     """
+    np.random.seed(2)
     initial_epsilon = epsilon
-
     for episode in range(episodes):
-        # Reset and choose first action
-        state = env.reset()[0]
+        state, _ = env.reset()
         action = epsilon_greedy(Q, state, epsilon)
-
-        # Init. eligibility traces to zero, for all states
         eligibility_traces = np.zeros_like(Q)
-
-        for steps in range(max_steps):
-            # Take the action in the environment
+        for _ in range(max_steps):
             new_state, reward, terminated, truncated, _ = env.step(action)
-
-            # Choose next action based on epsilon-greedy policy
             new_action = epsilon_greedy(Q, new_state, epsilon)
-
-            # TD Error (δ): reward + gamma * V(next_state) - V(state)
-            delta = (reward + (gamma * Q[new_state, new_action]) -
-                     Q[state, action])
-
-            # Update eligibility traces, apply lambtha decay
-            eligibility_traces[state, action] += 1
+            delta = reward + gamma * Q[new_state, new_action] - Q[state, action]
             eligibility_traces *= lambtha * gamma
-
-            # Update the Q-table
+            eligibility_traces[state, action] += 1
             Q += alpha * delta * eligibility_traces
-
-            # Update to the next state & action
-            state = new_state
-            action = new_action
-
+            state, action = new_state, new_action
             if terminated or truncated:
                 break
-
-        # Exploration rate decay
-        epsilon = (min_epsilon + (initial_epsilon - min_epsilon) *
-                   np.exp(-epsilon_decay * episode))
-
-    return Q
+        epsilon = max(min_epsilon, epsilon - epsilon_decay)
+    return np.round(Q, 4)
