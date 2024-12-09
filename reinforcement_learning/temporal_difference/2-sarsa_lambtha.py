@@ -54,13 +54,16 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100, alpha=0.1,
     Returns:
         numpy.ndarray: The updated Q-table after training.
     """
-    np.random.seed(2)
+    np.random.seed(2)  # Fixe la seed de NumPy
+    env.seed(2)  # Fixe la seed de l'environnement
     initial_epsilon = epsilon
+    
     for episode in range(episodes):
-        state, _ = env.reset()
+        state, _ = env.reset(seed=2)  # Reset de l'environnement avec la seed
         action = epsilon_greedy(Q, state, epsilon)
         eligibility_traces = np.zeros_like(Q)
-        for _ in range(max_steps):
+        
+        for step in range(max_steps):
             new_state, reward, terminated, truncated, _ = env.step(action)
             new_action = epsilon_greedy(Q, new_state, epsilon)
             delta = reward + gamma * Q[new_state, new_action] - Q[state, action]
@@ -68,7 +71,10 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100, alpha=0.1,
             eligibility_traces[state, action] += 1
             Q += alpha * delta * eligibility_traces
             state, action = new_state, new_action
+            
             if terminated or truncated:
                 break
+        
         epsilon = max(min_epsilon, epsilon - epsilon_decay)
+    
     return np.round(Q, 4)
