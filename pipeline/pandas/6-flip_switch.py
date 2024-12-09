@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+""" Function that transposes a DataFrame """
 
 
 def flip_switch(df):
