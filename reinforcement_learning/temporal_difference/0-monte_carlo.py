@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ Monte Carlo Algorithm """
 import numpy as np
-import gym
 
 
 def monte_carlo(env, V, policy, episodes=5000,
