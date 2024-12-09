@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ Performs SARSA(λ) with eligibility trace """
 import numpy as np
-import gym
 
 
 def epsilon_greedy(state, Q, epsilon):
@@ -50,7 +49,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
 
     for ep in range(episodes):
         # Reset environment to start a new episode
-        state = env.reset()
+        state = env.reset()[0]
         # Choose initial action using epsilon-greedy policy
         action = epsilon_greedy(state, Q, epsilon)
         # Initialize eligibility trace for Q table
@@ -58,7 +57,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
 
         for step in range(max_steps):
             # Take action in the environment and observe new state and reward
-            new_state, reward, done, _ = env.step(action)
+            new_state, reward, done, truncated, _ = env.step(action)
             # Choose new action using epsilon-greedy policy for new state
             new_action = epsilon_greedy(new_state, Q, epsilon)
 
@@ -73,7 +72,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
             # Update Q table using SARSA(λ) update rule
             Q += alpha * td_error * eligibility_trace
 
-            if done:
+            if done or truncated:
                 break  # Exit loop if episode is finished
 
             # Update state and action for next iteration
