@@ -2,7 +2,6 @@
 """ Temporal Difference Lambda Algorithm """
 
 import numpy as np
-import gym
 
 
 def td_lambtha(env, V, policy, lambtha=1, episodes=5000,
@@ -22,14 +21,14 @@ def td_lambtha(env, V, policy, lambtha=1, episodes=5000,
     """
 
     for ep in range(episodes):
-        state = env.reset()  # Reset environment to initial state
+        state = env.reset()[0]  # Reset environment to initial state
         eligibility_trace = np.zeros(V.shape)  # Initialize eligibility trace
 
         for step in range(max_steps):
             action = policy(state)  # Select action based on policy
 
             # Take action in the environment
-            next_state, reward, done, _ = env.step(action)
+            next_state, reward, done, truncated, _ = env.step(action)
 
             # TD error
             td_error = reward + gamma * V[next_state] - V[state]
@@ -43,7 +42,7 @@ def td_lambtha(env, V, policy, lambtha=1, episodes=5000,
             V += alpha * td_error * eligibility_trace
 
             # break if done to initiate the return
-            if done:
+            if done or truncated:
                 break
 
             # otherwise, update state to next_state and continue
