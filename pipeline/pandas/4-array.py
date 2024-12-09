@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-
-import pandas as pd
+""" Function that converts a pd.DataFrame to a np.ndarray """
 
 
 def array(df):
