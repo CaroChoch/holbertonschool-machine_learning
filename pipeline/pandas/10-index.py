@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-
-import pandas as pd
-from_file = __import__('2-from_file').from_file
+""" Set the index to the 'Timestamp' column """
 
 
-df = from_file('coinbaseUSD_1-min_data_2014-12-01_to_2019-01-09.csv', ',')
+def index(df):
+    """
+    Set the index to the 'Timestamp' column
+    df: pandas DataFrame
+    Return: new DataFrame
+    """
+    # Set the index to the 'Timestamp' column
+    df = df.set_index('Timestamp')
 
-# Set the index to the 'Timestamp' column
-df = df.set_index('Timestamp')
-
-print(df.tail())
+    # Return the new DataFrame
+    return df
