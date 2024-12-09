@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """ Calculate descriptive statistics for all columns in pd.DataFrame except Timestamp """
 
-import pandas as pd
-
 
 def analyze(df):
     """
@@ -17,4 +15,3 @@ def analyze(df):
 
     # Return the descriptive statistics
     return stats
-
