@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ Monte Carlo Algorithm """
 import numpy as np
-import gym
 
 
 def monte_carlo(env, V, policy, episodes=5000,
@@ -18,28 +17,25 @@ def monte_carlo(env, V, policy, episodes=5000,
         - gamma: the discount rate
     Returns: V, the updated value estimate
     """
-
     for ep in range(episodes):
-        state = env.reset()  # reset environment to starting state
+        state = env.reset()[0]  # reset environment to starting state
         # initialize list to store states and rewards in this episode
         episode = []
-        done = False  # boolean to indicate if episode is done
-        G = 0  # initialize return G
 
         for step in range(max_steps):
             action = policy(state)  # choose action based on policy
 
             # take action in the environment
-            new_state, reward, done, _ = env.step(action)
+            new_state, reward, done, truncated, _ = env.step(action)
             episode.append([state, reward])  # store state and reward
-            if done:
+            if done or truncated:
                 break
             state = new_state  # update state
 
+        G = 0  # initialize return G
         episode = np.array(episode, dtype=int)
 
-        for s in reversed(range(len(episode))):
-            state, reward = episode[s]
+        for state, reward in reversed((episode)):
             # calculate return G with discount factor gamma
             G = gamma * G + reward
 
