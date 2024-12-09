@@ -67,7 +67,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
 
             # Update eligibility trace for current state and action
             eligibility_trace[state, action] += 1
-            eligibility_trace *= gamma * lambtha
+            eligibility_trace *= lambtha * gamma
 
             # Update Q table using SARSA(λ) update rule
             Q += alpha * td_error * eligibility_trace
