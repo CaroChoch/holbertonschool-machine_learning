@@ -13,14 +13,14 @@ def epsilon_greedy(state, Q, epsilon):
     Returns: the action to take
     """
     # Generate a random number between 0 and 1
-    p = np.random.uniform()
+    p = np.random.uniform(0, 1)
 
     if p > epsilon:
         # Exploit : Choose the action with the highest Q value
-        action = np.argmax(Q[state])
+        action = np.argmax(Q[state, :])
     else:
         # Explore : Choose a random action
-        action = np.random.randint(Q.shape[1])
+        action = np.random.randint(0, Q.shape[1])
 
     return action
 
@@ -53,7 +53,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
         # Choose initial action using epsilon-greedy policy
         action = epsilon_greedy(state, Q, epsilon)
         # Initialize eligibility trace for Q table
-        eligibility_trace = np.zeros(Q.shape)
+        eligibility_trace = np.zeros_like(Q)
 
         for step in range(max_steps):
             # Take action in the environment and observe new state and reward
@@ -62,7 +62,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
             new_action = epsilon_greedy(new_state, Q, epsilon)
 
             # Calculate TD error uning action-value form of Q
-            td_error = reward + gamma * Q[new_state, new_action] \
+            td_error = (reward + gamma * Q[new_state, new_action]) \
                 - Q[state, action]
 
             # Update eligibility trace for current state and action
@@ -72,16 +72,16 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
             # Update Q table using SARSA(λ) update rule
             Q += alpha * td_error * eligibility_trace
 
-            if done or truncated:
-                break  # Exit loop if episode is finished
-
             # Update state and action for next iteration
             state = new_state
             action = new_action
 
+            if done or truncated:
+                break  # Exit loop if episode is finished
+
         # Decay epsilon according to exponential schedule
         epsilon = min_epsilon + (epsilon_init - min_epsilon) * np.exp(
-            -epsilon_decay * ep)
+            - epsilon_decay * ep)
 
     # Return the updated Q table
     return Q
