@@ -46,6 +46,10 @@ class DeepNeuralNetwork:
 
         # Loop through the layers of the neural network
         for i in range(self.L):
+            # Check if the type of the current element in layers is not an
+            # integer or if it is a negative integer
+            if not isinstance(layers[i], int) or layers[i] < 0:
+                raise TypeError("layers must be a list of positive integers")
             # Check if it's the first layer
             if i == 0:
                 # Initialize weights of the first layer using He et al. method
