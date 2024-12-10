@@ -19,7 +19,7 @@ class DeepNeuralNetwork:
             layers (int): number of layers in the deep neural network
         """
         # Check if nx is an integer
-        if type(nx) is not int:
+        if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
 
         # Check if nx is a positive integer
@@ -27,7 +27,7 @@ class DeepNeuralNetwork:
             raise ValueError("nx must be a positive integer")
 
         # Check if layers is not a list or if it is an empty list
-        if type(layers) is not list or len(layers) == 0:
+        if not isinstance(layers, list) or len(layers) == 0:
             raise TypeError("layers must be a list of positive integers")
 
         # Initialize L
@@ -48,7 +48,7 @@ class DeepNeuralNetwork:
         for i in range(self.L):
             # Check if the type of the current element in layers is not an
             # integer or if it is a negative integer
-            if type(layers[i]) != int or layers[i] < 0:
+            if not isinstance(layers[i], int) or layers[i] < 0:
                 raise TypeError("layers must be a list of positive integers")
             # Check if it's the first layer
             if i == 0:
