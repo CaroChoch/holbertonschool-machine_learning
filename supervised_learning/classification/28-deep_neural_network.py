@@ -23,7 +23,7 @@ class DeepNeuralNetwork:
             activation (str): represents the type of activation function
         """
         # Check if nx is an integer
-        if type(nx) is not int:
+        if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
 
         # Check if nx is a positive integer
@@ -31,7 +31,7 @@ class DeepNeuralNetwork:
             raise ValueError("nx must be a positive integer")
 
         # Check if layers is not a list or if it is an empty list
-        if type(layers) is not list or len(layers) == 0:
+        if not isinstance(layers, list) or len(layers) == 0:
             raise TypeError("layers must be a list of positive integers")
 
         # Check if activation is a sigmoid function or a tangent function
@@ -59,7 +59,7 @@ class DeepNeuralNetwork:
         for i in range(self.__L):
             # Check if the type of the current element in layers is not an
             # integer or if it is a negative integer
-            if type(layers[i]) != int or layers[i] < 0:
+            if not isinstance(layers[i], int) or layers[i] < 1:
                 raise TypeError("layers must be a list of positive integers")
             # Check if it's the first layer
             if i == 0:
@@ -267,7 +267,7 @@ class DeepNeuralNetwork:
             training have occurred
         """
         # Check if iterations is an integer
-        if type(iterations) is not int:
+        if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
 
         # Check if iterations is a positive integer
@@ -275,7 +275,7 @@ class DeepNeuralNetwork:
             raise ValueError("iterations must be a positive integer")
 
         # Check if alpha is a float
-        if type(alpha) is not float:
+        if not isinstance(alpha, float):
             raise TypeError("alpha must be a float")
 
         # Check if alpha is a positive float
@@ -283,13 +283,13 @@ class DeepNeuralNetwork:
             raise ValueError("alpha must be positive")
 
         # Check if step is an integer
-        if type(step) is not int:
+        if not isinstance(step, int):
             raise TypeError("step must be an integer")
 
         # Check if verbose or graph is True
         if verbose or graph:
             # Check if step is an integer
-            if type(step) != int:
+            if not isinstance(step, int):
                 raise TypeError("step must be an integer")
 
             # Check if step is positive and less than or equal to iterations
