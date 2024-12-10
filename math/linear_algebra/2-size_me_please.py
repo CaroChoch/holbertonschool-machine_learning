@@ -10,8 +10,8 @@ def matrix_shape(matrix):
             a list of integers
     """
     # Check if the first element of the matrix is a list
-    if type(matrix[0]) == list:
+    if isinstance(matrix, list):
         # list with length of the matrix + the result of the recursive call
         return [len(matrix)] + matrix_shape(matrix[0])
     else:
-        return [len(matrix)]
+        return []
