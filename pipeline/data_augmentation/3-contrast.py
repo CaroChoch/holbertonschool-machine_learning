@@ -7,9 +7,11 @@ def change_contrast(image, lower, upper):
     """
     Randomly adjusts the contrast of an image
     Arguments:
-     - image is a 3D tf.Tensor representing the input image to adjust the contrast
-     - lower is a float representing the lower bound of the random contrast factor range
-     - upper is a float representing the upper bound of the random contrast factor range
+     - image : 3D tf.Tensor representing the input image to adjust the contrast
+     - lower : float representing the lower bound of the random contrast factor
+     range
+     - upper : float representing the upper bound of the random contrast factor
+     range
     Returns:
      The contrast-adjusted image
     """
