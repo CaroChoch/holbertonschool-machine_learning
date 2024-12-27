@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """ Creates the forward propagation graph for the neural network """
+
 import tensorflow.compat.v1 as tf
+create_layer = __import__('1-create_layer').create_layer
 
 
 def forward_prop(x, layer_sizes=[], activations=[]):
@@ -17,8 +19,12 @@ def forward_prop(x, layer_sizes=[], activations=[]):
     Returns:
      The prediction of the network in tensor form
     """
-    create_layer = __import__('1-create_layer').create_layer
-    pred = create_layer(x, layer_sizes[0], activations[0])
-    for i in range(1, len(layer_sizes)):
-        pred = create_layer(pred, layer_sizes[i], activations[i])
-    return(pred)
+    # Create the first layer
+    pred = x
+
+    # Create the subsequent layers
+    for size, activ in zip(layer_sizes, activations):
+        pred = create_layer(pred, size, activ)
+
+    # Return the prediction
+    return pred
