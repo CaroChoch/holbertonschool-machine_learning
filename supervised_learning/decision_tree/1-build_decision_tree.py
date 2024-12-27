@@ -30,7 +30,8 @@ class Node:
     def count_nodes_below(self, only_leaves=False):
         """ Count the number of nodes below the node """
         left_count = self.left_child.count_nodes_below(only_leaves=only_leaves)
-        right_count = self.right_child.count_nodes_below(only_leaves=only_leaves)
+        right_count = self.right_child.count_nodes_below(
+            only_leaves=only_leaves)
         if only_leaves:
             return left_count + right_count
         return 1 + left_count + right_count
@@ -53,6 +54,7 @@ class Leaf(Node):
         """ Count the number of nodes below the leaf """
         return 1
 
+
 class Decision_Tree():
     """ Class that represents a decision tree """
     def __init__(self, max_depth=10, min_pop=1, seed=0,
@@ -73,7 +75,7 @@ class Decision_Tree():
     def depth(self):
         """ Calculate the depth of the decision tree"""
         return self.root.max_depth_below()
-    
+
     def count_nodes(self, only_leaves=False):
         """ Count the number of nodes in the decision tree """
         return self.root.count_nodes_below(only_leaves=only_leaves)
