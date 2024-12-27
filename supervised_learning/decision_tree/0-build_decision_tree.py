@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Depth of a decision tree"""
+""" Depth of a decision tree """
 
 import numpy as np
 
