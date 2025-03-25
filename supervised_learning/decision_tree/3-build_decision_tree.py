@@ -76,14 +76,15 @@ class Node:
         for x in lines[1:]:
             new_text += ("       " + x) + "\n"
         return new_text
-
+    
     def get_leaves_below(self):
         """ Returns the list of all leaves of the tree """
-        if self.is_leaf:
-            return [self]
-        get_leaves_below_right = self.right_child.get_leaves_below()
-        get_leaves_below_left = self.left_child.get_leaves_below()
-        return get_leaves_below_right + get_leaves_below_left
+        leaves = []
+        if self.left_child:
+            leaves += self.left_child.get_leaves_below()
+        if self.right_child:
+            leaves += self.right_child.get_leaves_below()
+        return leaves
 
 
 class Leaf(Node):
