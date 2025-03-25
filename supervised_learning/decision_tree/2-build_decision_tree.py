@@ -57,7 +57,6 @@ class Node:
 
         return s.rstrip()
 
-
     def left_child_add_prefix(self, text):
         """
         Adds the string representation of the left child to the given text
