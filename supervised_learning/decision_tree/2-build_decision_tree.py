@@ -40,25 +40,33 @@ class Node:
         """
         Prints string representation of the node and its children.
         """
-
         if self.is_root:
             s = "root"
         else:
-            s = "-> node"
+            s = "node"
+        s = f"{s} [feature={self.feature},"
+        s += f" threshold={self.threshold}]\n"
 
-        return f"{s} [feature={self.feature}, threshold={self.threshold}]\n"\
-            + self.left_child_add_prefix(str(self.left_child))\
-            + self.right_child_add_prefix(str(self.right_child))
+        if self.left_child:
+            left_str = self.left_child.__str__().replace("\n", "\n    |  ")
+            s += f"    +---> {left_str}"
+
+        if self.right_child:
+            right_str = self.right_child.__str__().replace("\n", "\n       ")
+            s += f"\n    +---> {right_str}"
+
+        return s.rstrip()
+
 
     def left_child_add_prefix(self, text):
         """
         Adds the string representation of the left child to the given text
         """
         lines = text.split("\n")
-        new_text = "    +--"+lines[0] + "\n"
+        new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
-            new_text += ("    |  "+x) + "\n"
-        return (new_text)
+            new_text += ("    |  " + x) + "\n"
+        return new_text
 
     def right_child_add_prefix(self, text):
         """
@@ -68,7 +76,7 @@ class Node:
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += ("       " + x) + "\n"
-        return (new_text)
+        return new_text
 
 
 class Leaf(Node):
@@ -92,7 +100,7 @@ class Leaf(Node):
         """
         Returns a string representation of the leaf.
         """
-        return f"leaf [value={self.value}]"
+        return (f"leaf [value={self.value}]")
 
 
 class Decision_Tree():
@@ -124,4 +132,5 @@ class Decision_Tree():
         """
         Returns a string representation of the entire decision tree.
         """
+        # rstrip() to remove the extra newline at the end of the string
         return self.root.__str__() + "\n"
