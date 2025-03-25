@@ -79,9 +79,9 @@ class Node:
 
     def get_leaves_below(self):
         """ Returns the list of all leaves of the tree """
-        if self.is_leaf:
-            return [self]
         leaves = []
+        if self.is_leaf:
+            leaves.append(self)
         if self.left_child:
             leaves.extend(self.left_child.get_leaves_below())
         if self.right_child:
