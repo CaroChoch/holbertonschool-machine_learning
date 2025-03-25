@@ -83,9 +83,9 @@ class Node:
             return [self]
         leaves = []
         if self.left_child:
-            leaves += self.left_child.get_leaves_below()
+            leaves.extend(self.left_child.get_leaves_below())
         if self.right_child:
-            leaves += self.right_child.get_leaves_below()
+            leaves.extend(self.right_child.get_leaves_below())
         return leaves
 
 
