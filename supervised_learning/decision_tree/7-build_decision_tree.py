@@ -286,30 +286,33 @@ class Decision_Tree():
         """ Fit the node """
         node.feature, node.threshold = self.split_criterion(node)
 
-        left_population = node.sub_population & (self.explanatory[:, node.feature] > node.threshold)
-        right_population = node.sub_population & (self.explanatory[:, node.feature] <= node.threshold)
+        # Get feature values for current node
+        feature_values = self.explanatory[:, node.feature]
+        
+        left_population = node.sub_population & (feature_values > node.threshold)
+        right_population = node.sub_population & (feature_values <= node.threshold)
 
         # Is left node a leaf ?
-        is_left_leaf = (node.depth == self.max_depth or
+        is_left_leaf = (node.depth == self.max_depth - 1 or
                         np.sum(left_population) <= self.min_pop or
                         np.unique(self.target[left_population]).size == 1)
 
         if is_left_leaf:
-                node.left_child = self.get_leaf_child(node,left_population)                                                         
+            node.left_child = self.get_leaf_child(node, left_population)
         else:
-                node.left_child = self.get_node_child(node,left_population)
-                self.fit_node(node.left_child)
+            node.left_child = self.get_node_child(node, left_population)
+            self.fit_node(node.left_child)
 
         # Is right node a leaf ?
-        is_right_leaf = (node.depth == self.max_depth or
+        is_right_leaf = (node.depth == self.max_depth - 1 or
                         np.sum(right_population) <= self.min_pop or
                         np.unique(self.target[right_population]).size == 1)
 
         if is_right_leaf:
-                node.right_child = self.get_leaf_child(node,right_population)
+            node.right_child = self.get_leaf_child(node, right_population)
         else:
-                node.right_child = self.get_node_child(node,right_population)
-                self.fit_node(node.right_child)    
+            node.right_child = self.get_node_child(node, right_population)
+            self.fit_node(node.right_child)
 
     def get_leaf_child(self, node, sub_population):
         """ Get the leaf child """
