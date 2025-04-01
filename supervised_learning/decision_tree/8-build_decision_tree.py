@@ -356,29 +356,45 @@ class Decision_Tree():
 
         # Reshape data for broadcasting
         X_reshaped = X[:, np.newaxis]  # shape: (n, 1)
-        y_reshaped = y[:, np.newaxis]  # shape: (n, 1)
         thresholds_reshaped = thresholds[np.newaxis, :]  # shape: (1, t)
 
         # Create masks for left and right splits
         left_mask = X_reshaped > thresholds_reshaped  # shape: (n, t)
         right_mask = ~left_mask  # shape: (n, t)
 
-        # Get unique classes and create one-hot encoded target
+        # Calculate class counts for each split
         classes = np.unique(y)
-        y_one_hot = (y_reshaped == classes)  # shape: (n, c)
+        # shape: (n, 1, 1) :
+        y_expanded = y[:, np.newaxis, np.newaxis]
+        # shape: (1, 1, c) :
+        classes_expanded = classes[np.newaxis, np.newaxis, :]
 
-        # Calculate class counts for left and right splits
-        left_counts = np.dot(left_mask.T, y_one_hot)  # shape: (t, c)
-        right_counts = np.dot(right_mask.T, y_one_hot)  # shape: (t, c)
+        # Create masks for each class
+        # shape: (n, 1, c) :
+        class_masks = (y_expanded == classes_expanded)
+
+        # Calculate left and right counts for each class
+        # shape: (n, t, 1) :
+        left_expanded = left_mask[:, :, np.newaxis]
+        # shape: (n, t, 1) :
+        right_expanded = right_mask[:, :, np.newaxis]
+
+        # shape: (t, c) :
+        left_counts = np.sum(left_expanded & class_masks, axis=0)
+        # shape: (t, c) :
+        right_counts = np.sum(right_expanded & class_masks, axis=0)
 
         # Calculate totals
-        left_totals = np.sum(left_counts, axis=1)  # shape: (t,)
-        right_totals = np.sum(right_counts, axis=1)  # shape: (t,)
+        # shape: (t,) :
+        left_totals = np.sum(left_counts, axis=1)
+        # shape: (t,) :
+        right_totals = np.sum(right_counts, axis=1)
 
-        # Calculate proportions
-        left_proportions = left_counts / (left_totals[:, np.newaxis] + 1e-10)
+        # Calculate proportions with epsilon to avoid division by zero
+        epsilon = 1e-10
+        left_proportions = left_counts / (left_totals[:, np.newaxis] + epsilon)
         right_proportions = right_counts / (
-            right_totals[:, np.newaxis] + 1e-10)
+            right_totals[:, np.newaxis] + epsilon)
 
         # Calculate Gini impurities
         left_gini = 1 - np.sum(left_proportions ** 2, axis=1)
@@ -386,9 +402,9 @@ class Decision_Tree():
 
         # Calculate weighted average Gini impurity
         total_samples = left_totals + right_totals
-        weighted_left = left_totals * left_gini
-        weighted_right = right_totals * right_gini
-        gini_avg = (weighted_left + weighted_right) / total_samples
+        left_weights = left_totals / total_samples
+        right_weights = right_totals / total_samples
+        gini_avg = left_weights * left_gini + right_weights * right_gini
 
         # Find best threshold
         best_idx = np.argmin(gini_avg)
