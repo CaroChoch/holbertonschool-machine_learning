@@ -290,7 +290,9 @@ class Decision_Tree():
         right_population = node.sub_population & (self.explanatory[:, node.feature] <= node.threshold)
 
         # Is left node a leaf ?
-        is_left_leaf = np.sum(left_population) <= self.min_pop
+        is_left_leaf = (node.depth == self.max_depth or
+                        np.sum(left_population) <= self.min_pop or
+                        np.unique(self.target[left_population]).size == 1)
 
         if is_left_leaf:
                 node.left_child = self.get_leaf_child(node,left_population)                                                         
@@ -299,7 +301,9 @@ class Decision_Tree():
                 self.fit_node(node.left_child)
 
         # Is right node a leaf ?
-        is_right_leaf = np.sum(right_population) <= self.min_pop
+        is_right_leaf = (node.depth == self.max_depth or
+                        np.sum(right_population) <= self.min_pop or
+                        np.unique(self.target[right_population]).size == 1)
 
         if is_right_leaf:
                 node.right_child = self.get_leaf_child(node,right_population)
@@ -309,7 +313,7 @@ class Decision_Tree():
 
     def get_leaf_child(self, node, sub_population):
         """ Get the leaf child """
-        value = np.mean(self.target[sub_population])
+        value = np.argmax(np.bincount(self.target[sub_population]))
         leaf_child = Leaf(value)
         leaf_child.depth = node.depth + 1
         leaf_child.sub_population = sub_population
