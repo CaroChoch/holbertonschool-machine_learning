@@ -262,12 +262,13 @@ class Decision_Tree():
 
         if verbose==1:
             print(f"""  Training finished.
-                - Depth                     : { self.depth()       }
-                - Number of nodes           : { self.count_nodes() }
-                - Number of leaves          : { self.count_nodes(only_leaves=True) }
-                - Accuracy on training data : { self.accuracy(self.explanatory,self.target)    }""")  ##   <--- to be defined later
+    - Depth                     : { self.depth()       }
+    - Number of nodes           : { self.count_nodes() }
+    - Number of leaves          : { self.count_nodes(only_leaves=True) }
+    - Accuracy on training data : { self.accuracy(self.explanatory,self.target)    }""")  ##   <--- to be defined later
 
     def np_extrema(self,arr):
+        """ Calculate the minimum and maximum of an array """
         return np.min(arr), np.max(arr)
 
     def random_split_criterion(self,node):
@@ -275,20 +276,18 @@ class Decision_Tree():
         diff=0
         while diff==0 :
             feature=self.rng.integers(0,self.explanatory.shape[1])
-            feature_min,feature_max=self.np_extrema(self.explanatory[:,feature][node.sub_population])
-            diff=feature_max-feature_min
+            feature_min, feature_max = self.np_extrema(self.explanatory[:, feature][node.sub_population])
+            diff=feature_max - feature_min
         x=self.rng.uniform()
-        threshold= (1-x)*feature_min + x*feature_max
-        return feature,threshold
+        threshold= (1 - x) * feature_min + x * feature_max
+        return feature, threshold
 
     def fit_node(self,node):
         """ Fit the node """
         node.feature, node.threshold = self.split_criterion(node)
 
-        left_population = np.logical_and(node.sub_population, 
-            self.explanatory[:, node.feature] <= node.threshold)
-        right_population = np.logical_and(node.sub_population,
-            self.explanatory[:, node.feature] > node.threshold)
+        left_population = node.sub_population & (self.explanatory[:, node.feature] > node.threshold)
+        right_population = node.sub_population & (self.explanatory[:, node.feature] <= node.threshold)
 
         # Is left node a leaf ?
         is_left_leaf = np.sum(left_population) <= self.min_pop
