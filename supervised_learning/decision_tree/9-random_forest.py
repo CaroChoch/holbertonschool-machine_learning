@@ -34,8 +34,8 @@ class Random_Forest():
 
         # Calculate the mode (most frequent) prediction for each example
         return np.apply_along_axis(lambda x: np.bincount(x).argmax(),
-                                axis=0,
-                                arr=predictions)
+                                   axis=0,
+                                   arr=predictions)
 
     def fit(self, explanatory, target, n_trees=100, verbose=0):
         """
