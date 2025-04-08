@@ -4,9 +4,9 @@ This module contains the Isolation_Random_Tree class, which implements an
 isolation tree.
 """
 
+import numpy as np
 Node = __import__('8-build_decision_tree').Node
 Leaf = __import__('8-build_decision_tree').Leaf
-import numpy as np
 
 
 class Isolation_Random_Tree:
@@ -22,10 +22,10 @@ class Isolation_Random_Tree:
             self.root = root
         else:
             self.root = Node(is_root=True)
-            self.explanatory = None
-            self.max_depth = max_depth
-            self.predict = None
-            self.min_pop = 1
+        self.explanatory = None
+        self.max_depth = max_depth
+        self.predict = None
+        self.min_pop = 1
 
     def __str__(self):
         """
@@ -66,11 +66,22 @@ class Isolation_Random_Tree:
         for leaf in leaves:
             leaf.update_indicator()
 
+        def predict_sample(x):
+            node = self.root
+            while not isinstance(node, Leaf):
+                if x[node.feature] <= node.threshold:
+                    node = node.left_child
+                else:
+                    node = node.right_child
+            return node.depth
+
+        self.predict = lambda A: np.array([predict_sample(x) for x in A])
+
     def np_extrema(self, arr):
         """
         Get the minimum and maximum values of the array.
         """
-        return np.min(arr), np.max(arr)             
+        return np.min(arr), np.max(arr)
 
     def random_split_criterion(self, node):
         """
@@ -90,8 +101,8 @@ class Isolation_Random_Tree:
         """
         Get the leaf child of the isolation tree.
         """
-        leaf_child = Leaf()
-        leaf_child.depth = node.depth+1
+        leaf_child = Leaf(node.depth + 1)
+        leaf_child.depth = node.depth + 1
         leaf_child.subpopulation = sub_population
         return leaf_child
 
@@ -110,20 +121,35 @@ class Isolation_Random_Tree:
         """
         node.feature, node.threshold = self.random_split_criterion(node)
 
-        left_population = node.sub_population & (self.explanatory[:, node.feature] <= node.threshold)
-        right_population = node.sub_population & (self.explanatory[:, node.feature] > node.threshold)
+        feature_values = np.greater(
+            self.explanatory[:, node.feature],
+            node.threshold)
+
+        left_population = np.logical_and(
+            node.sub_population,
+            feature_values)
+        right_population = np.logical_and(
+            node.sub_population,
+            np.logical_not(feature_values)
+            )
 
         # Is left node a leaf ?
-        is_left_leaf = left_population.size == 0 or node.depth >= self.max_depth
+        is_left_leaf = np.any(np.array(
+            [node.depth == self.max_depth - 1,
+             np.sum(left_population) <= self.min_pop]))
 
         if is_left_leaf:
-            node.left_child = self.get_leaf_child(node, left_population)                                                         
+            node.left_child = self.get_leaf_child(node, left_population)
         else:
-            node.left_child = self.get_node_child(node, left_population)
+            node.left_child = self.get_node_child(
+                node,
+                left_population)
             self.fit_node(node.left_child)
 
         # Is right node a leaf ?
-        is_right_leaf = right_population.size == 0 or node.depth >= self.max_depth
+        is_right_leaf = np.any(np.array(
+            [node.depth == self.max_depth - 1,
+             np.sum(right_population) <= self.min_pop]))
 
         if is_right_leaf:
             node.right_child = self.get_leaf_child(node, right_population)
@@ -137,7 +163,7 @@ class Isolation_Random_Tree:
         """
         self.split_criterion = self.random_split_criterion
         self.explanatory = explanatory
-        self.root.sub_population = np.ones(explanatory.shape[0], dtype='bool')
+        self.root.sub_population = np.ones_like(explanatory.shape[0], dtype='bool')
 
         self.fit_node(self.root)
         self.update_predict()
