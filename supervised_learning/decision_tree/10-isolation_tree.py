@@ -163,7 +163,9 @@ class Isolation_Random_Tree:
         """
         self.split_criterion = self.random_split_criterion
         self.explanatory = explanatory
-        self.root.sub_population = np.ones_like(explanatory.shape[0], dtype='bool')
+        self.root.sub_population = np.ones_like(
+            explanatory.shape[0],
+            dtype='bool')
 
         self.fit_node(self.root)
         self.update_predict()
