@@ -186,12 +186,14 @@ def baum_welch(Observations, Transition, Emission, Initial, iterations=1000):
 
         # Compute gamma from xi
         gamma = np.sum(xi, axis=1)
-        
+
         # Add final timestep to gamma
-        gamma = np.hstack((gamma, np.sum(xi[:, :, T-2], axis=0).reshape(-1, 1)))
+        gamma = np.hstack(
+            (gamma, np.sum(xi[:, :, T-2], axis=0).reshape(-1, 1)))
 
         # Update transition matrix
-        transition_copy = np.sum(xi, axis=2) / np.sum(gamma[:, :-1], axis=1).reshape((-1, 1))
+        transition_copy = np.sum(xi, axis=2) / \
+            np.sum(gamma[:, :-1], axis=1).reshape((-1, 1))
 
         # Update emission matrix
         for k in range(M):
