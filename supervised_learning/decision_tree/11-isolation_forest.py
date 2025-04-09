@@ -21,28 +21,25 @@ class Isolation_Random_Forest():
         self.numpy_preds = None
         self.n_trees = n_trees
         self.max_depth = max_depth
-        self.min_pop = min_pop
         self.seed = seed
 
     def predict(self, explanatory):
         """
-        Predicts the anomaly score for each sample.
+        Predicts the depth of the isolation random forest.
         """
-        depths = np.array([f(explanatory) for f in self.numpy_preds])
-        return depths.mean(axis=0)
+        predictions = np.array([f(explanatory) for f in self.numpy_preds])
+        return predictions.mean(axis=0)
 
     def fit(self, explanatory, n_trees=100, verbose=0):
         """
         Fits the isolation random forest to the data.
         """
         self.explanatory = explanatory
-        self.target = None
         self.numpy_preds = []
         depths = []
         nodes = []
         leaves = []
-        np.random.seed(self.seed)  # Set global seed
-        for i in range(self.n_trees):
+        for i in range(n_trees):
             T = Isolation_Random_Tree(
                 max_depth=self.max_depth,
                 seed=self.seed+i)
@@ -60,15 +57,10 @@ class Isolation_Random_Forest():
     def suspects(self, explanatory, n_suspects):
         """
         Returns the n_suspects rows in explanatory that have
-        the smallest depths (most anomalous)
+        the smallest mean depth
         """
         depths = self.predict(explanatory)
-        # Points with highest depths are considered anomalies
-        suspect_indices = np.argsort(-depths)[:n_suspects]
+        suspect_indices = np.argsort(depths)[:n_suspects]
         suspects = explanatory[suspect_indices]
         suspect_depths = depths[suspect_indices]
-        # Format depths to 2 decimal places
-        suspect_depths = np.round(suspect_depths, 2)
-        # Format suspects coordinates to 8 decimal places
-        suspects = np.round(suspects, 8)
         return suspects, suspect_depths
