@@ -136,103 +136,70 @@ def baum_welch(Observations, Transition, Emission, Initial, iterations=1000):
         - Emission: np.ndarray (N, M) - the updated emission probabilities
     """
 
-    # Input Validation
-    if (not isinstance(Observations, np.ndarray) or
-            len(Observations.shape) != 1):
+    if (not isinstance(Observations, np.ndarray) or Observations.ndim != 1 or
+            not isinstance(Emission, np.ndarray) or Emission.ndim != 2 or
+            not isinstance(Transition, np.ndarray) or Transition.ndim != 2 or
+            not isinstance(Initial, np.ndarray) or Initial.ndim != 2):
         return None, None
-    # Get the number of observations
+
+    N = Transition.shape[0]
+    M = Emission.shape[1]
     T = Observations.shape[0]
-    if not isinstance(T, int) or T < 2:
-        return None, None
 
-    # Input Validation
-    if not isinstance(Transition, np.ndarray) or len(Transition.shape) != 2:
-        return None, None
-    # Get the number of hidden states
-    M = Transition.shape[0]
-    if not isinstance(M, int) or M < 1:
-        return None, None
-    # Input Validation
-    if not (np.all(Transition >= 0) and np.all(Transition <= 1)):
-        return None, None
-    if not np.all(np.sum(Transition, axis=1) == 1):
-        return None, None
-    if not isinstance(Emission, np.ndarray) or len(Emission.shape) != 2:
-        return None, None
-    # Get the number of possible observations
-    N = Emission.shape[1]
-    if not isinstance(N, int) or N < 1:
-        return None, None
-    if not (np.all(Emission >= 0) and np.all(Emission <= 1)):
-        return None, None
-    if not np.sum(Emission, axis=1).all():
-        return None, None
-    # Input Validation
-    if not isinstance(Initial, np.ndarray) or len(Initial.shape) != 2:
-        return None, None
-    # Input Validation
-    if not (np.all(Initial >= 0) and np.all(Initial <= 1)):
-        return None, None
-    if not np.all(np.sum(Initial) == 1):
-        return None, None
-    if not isinstance(iterations, int) or iterations < 1:
-        return None, None
-
-    # Initialize variables
-    N = Emission.shape[0]
+    # Initialize copies of matrices
     transition_copy = Transition.copy()
     emission_copy = Emission.copy()
 
-    # Iterate the Baum-Welch algorithm
-    if iterations > 365:
-        iterations = 365
     for iteration in range(iterations):
-        _, alpha = forward(
+        # Forward algorithm
+        P_forward, alpha = forward(
             Observations,
             emission_copy,
             transition_copy,
             Initial)
-        _, beta = backward(
+
+        # Backward algorithm
+        P_backward, beta = backward(
             Observations,
             emission_copy,
             transition_copy,
             Initial)
+
         # Compute xi (gamma transition probabilities)
         xi = np.zeros((N, N, T - 1))
+        gamma = np.zeros((N, T))
+
         # Iterate over time steps
         for t in range(T - 1):
-            # Compute denominator for xi
+            # Compute denominator
             denominator = np.matmul(np.matmul(
                 alpha[:, t].T,
                 transition_copy) * emission_copy[:, Observations[t + 1]].T,
                 beta[:, t + 1])
-            # Iterate over hidden states
-            for hidden_state_index in range(N):
-                # Compute numerator for xi
-                numerator = alpha[hidden_state_index, t] *\
-                            transition_copy[hidden_state_index, :] *\
-                            emission_copy[:, Observations[t + 1]].T *\
-                            beta[:, t + 1].T
-                # Compute xi
-                xi[hidden_state_index, :, t] = numerator / denominator
-        # Compute gamma (state probabilities)
+
+            # Compute xi for each state
+            for i in range(N):
+                numerator = alpha[i, t] * transition_copy[i, :] * \
+                           emission_copy[:, Observations[t + 1]].T * \
+                           beta[:, t + 1].T
+                xi[i, :, t] = numerator / denominator
+
+        # Compute gamma from xi
         gamma = np.sum(xi, axis=1)
-        # Update Transition matrix
-        transition_copy = np.sum(
-            xi, 2) / np.sum(gamma, axis=1).reshape((-1, 1))
-        # Compute additional column for gamma
-        gamma = np.concatenate(
-            (gamma, np.sum(xi[:, :, T - 2], axis=0).reshape((-1, 1))), axis=1)
+        
+        # Add final timestep to gamma
+        gamma = np.hstack((gamma, np.sum(xi[:, :, T-2], axis=0).reshape(-1, 1)))
 
-        # Update Emission matrix
-        num_possible_emission_states = emission_copy.shape[1]
-        denominator = np.sum(gamma, axis=1)
-        # Iterate over hidden states
-        for state_index in range(num_possible_emission_states):
-            emission_copy[:, state_index] = np.sum(
-                gamma[:, Observations == state_index], axis=1)
-        # Normalize Emission matrix
-        emission_copy = np.divide(emission_copy, denominator.reshape((-1, 1)))
+        # Update transition matrix
+        transition_copy = np.sum(xi, axis=2) / np.sum(gamma[:, :-1], axis=1).reshape((-1, 1))
 
-    # Return updated Transition and Emission matrices
-    return transition_copy, emission_copy
+        # Update emission matrix
+        for k in range(M):
+            emission_copy[:, k] = np.sum(gamma[:, Observations == k], axis=1)
+        emission_copy = emission_copy / np.sum(gamma, axis=1).reshape((-1, 1))
+
+    # Round the final matrices
+    updated_transition = np.round(transition_copy, decimals=2)
+    updated_emission = np.round(emission_copy, decimals=2)
+
+    return updated_transition, updated_emission
