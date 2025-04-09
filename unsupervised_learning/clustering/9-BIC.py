@@ -61,6 +61,15 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
 
     # Get the number of data points and dimensions
     n, d = X.shape
+
+    # If kmax is not provided, set it to the number of data points
+    if kmax is None:
+        kmax = n
+    # If kmax is not an integer or is less than 1 or
+    # less than kmin or greater than n, return None
+    if not isinstance(kmax, int) or kmax < 1 or kmax < kmin or kmax > n:
+        return None, None, None, None
+
     # Initialize the log likelihood and BIC arrays
     log_likelihood = []
     # Initialize the best k, result, and BIC
