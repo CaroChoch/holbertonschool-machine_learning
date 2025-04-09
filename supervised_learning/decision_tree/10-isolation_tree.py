@@ -43,7 +43,7 @@ class Isolation_Random_Tree:
         """
         Count the nodes of the isolation tree.
         """
-        return self.root.count_nodes(only_leaves=only_leaves)
+        return self.root.count_nodes_below(only_leaves=only_leaves)
 
     def update_bounds(self):
         """
@@ -66,16 +66,7 @@ class Isolation_Random_Tree:
         for leaf in leaves:
             leaf.update_indicator()
 
-        def predict_sample(x):
-            node = self.root
-            while not isinstance(node, Leaf):
-                if x[node.feature] <= node.threshold:
-                    node = node.left_child
-                else:
-                    node = node.right_child
-            return node.depth
-
-        self.predict = lambda A: np.array([predict_sample(x) for x in A])
+        self.predict = lambda A: np.array([self.root.pred(x) for x in A])
 
     def np_extrema(self, arr):
         """
