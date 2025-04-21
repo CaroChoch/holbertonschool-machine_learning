@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Encode a translation dataset into tokenized format"""
-
 import tensorflow as tf
 import tensorflow_datasets as tfds
 import transformers
