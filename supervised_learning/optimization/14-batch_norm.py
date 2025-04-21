@@ -3,7 +3,7 @@
 Function that creates a batch normalization layer for a neural
 network in tensorflow
 """
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 
 def create_batch_norm_layer(prev, n, activation):
@@ -21,8 +21,7 @@ def create_batch_norm_layer(prev, n, activation):
     # Initialize the weights and biases of the layer
     init = tf.keras.initializers.VarianceScaling(mode="fan_avg")
     layer = tf.keras.layers.Dense(units=n,
-                                  kernel_initializer=init,
-                                  name="layer")
+                                  kernel_initializer=init)
 
     # Generate the output of the layer
     Z = layer(prev)
@@ -31,19 +30,19 @@ def create_batch_norm_layer(prev, n, activation):
     mean, variance = tf.nn.moments(Z, axes=[0])
 
     # Gamma and Beta initialization parameters
-    gamma = tf.Variable(tf.constant(1.0, shape=[n]), name="gamma")
-    beta = tf.Variable(tf.constant(0.0, shape=[n]), name="beta")
+    gamma = tf.Variable(initial_value=tf.ones([n]), trainable=True)
+    beta = tf.Variable(initial_value=tf.zeros([n]), trainable=True)
 
     # Epsilon value to avoid division by zero
-    epsilon = 1e-8
+    epsilon = 1e-7
 
     # Normalize the output of the layer
-    Z_norm = tf.nn.batch_normalization(x=Z,
-                                       mean=mean,
-                                       variance=variance,
-                                       offset=beta,
-                                       scale=gamma,
-                                       variance_epsilon=epsilon)
+    Z_norm = tf.nn.batch_normalization(Z,
+                                       mean,
+                                       variance,
+                                       beta,
+                                       gamma,
+                                       epsilon)
 
     # Return the activation function applied to Z
     return activation(Z_norm)
