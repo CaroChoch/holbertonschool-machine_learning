@@ -2,7 +2,7 @@
 """
 Function that builds a modified version of the LeNet-5 architecture using Keras
 """
-import tensorflow.keras as K
+from tensorflow import keras as K
 
 
 def lenet5(X):
