@@ -47,10 +47,12 @@ class Dataset:
         pt_start = self.tokenizer_pt.vocab_size
         en_start = self.tokenizer_en.vocab_size
 
-        pt_tokens = [pt_start] + self.tokenizer_pt.encode(
-            pt.numpy()) + [pt_start + 1]
-        en_tokens = [en_start] + self.tokenizer_en.encode(
-            en.numpy()) + [en_start + 1]
+        # Decode tensor bytes into strings
+        pt_text = pt.numpy().decode('utf-8')
+        en_text = en.numpy().decode('utf-8')
+
+        pt_tokens = [pt_start] + self.tokenizer_pt.encode(pt_text) + [pt_start + 1]
+        en_tokens = [en_start] + self.tokenizer_en.encode(en_text) + [en_start + 1]
 
         return pt_tokens, en_tokens
 
