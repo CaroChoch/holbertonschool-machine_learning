@@ -19,7 +19,7 @@ def create_RMSProp_op(alpha, beta2, epsilon):
     """
 
     # Define the optimizer with RMSProp
-    optimizer = tf.keras.optimizers.RMSProp(learning_rate=alpha,
+    optimizer = tf.keras.optimizers.RMSprop(learning_rate=alpha,
                                           rho=beta2,
                                           epsilon=epsilon)
 
