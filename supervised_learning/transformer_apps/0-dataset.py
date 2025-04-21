@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ Dataset class """
 import tensorflow_datasets as tfds
+import transformers
 
 
 class Dataset:
@@ -22,14 +23,12 @@ class Dataset:
 
     def tokenize_dataset(self, data):
         """
-        Creates sub-word tokenizers for dataset
+        Creates sub-word tokenizers for dataset using pretrained models
         """
-        tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            (pt.numpy().decode('utf-8') for pt, _ in tfds.as_numpy(data)),
-            target_vocab_size=2**13
+        tokenizer_pt = transformers.BertTokenizerFast.from_pretrained(
+            'neuralmind/bert-base-portuguese-cased'
         )
-        tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            (en.numpy().decode('utf-8') for _, en in tfds.as_numpy(data)),
-            target_vocab_size=2**13
+        tokenizer_en = transformers.BertTokenizerFast.from_pretrained(
+            'bert-base-uncased'
         )
         return tokenizer_pt, tokenizer_en
