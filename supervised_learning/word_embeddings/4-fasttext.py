@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """ Creates and trains a fastText model """
-from gensim.models import FastText
-from gensim.test.utils import datapath
-from gensim.models import Word2Vec
-from gensim.models import KeyedVectors
+import gensim
 
 
-def fasttext_model(sentences, size=100, min_count=5, window=5,
-                   negative=5, cbow=True, iterations=5, seed=0,
+def fasttext_model(sentences, vector_size=100, min_count=5, window=5,
+                   negative=5, cbow=True, epochs=5, seed=0,
                    workers=1):
     """
     Creates and trains a fastText model
@@ -30,25 +27,23 @@ def fasttext_model(sentences, size=100, min_count=5, window=5,
     sg = 0 if cbow else 1  # 0 for CBOW, 1 for Skip-gram
 
     # Create and train the model
-    model = FastText(
+    model = gensim.models.FastText(
         sentences=sentences,
-        size=size,
+        vector_size=vector_size,
         min_count=min_count,
         window=window,
         negative=negative,
         sg=sg,
-        iter=iterations,
+        epochs=epochs,
         seed=seed,
         workers=workers,
     )
 
-    model.save("fasttext.model")
-
-    model = FastText.load("fasttext.model")
+    model.build_vocab(sentences)
 
     # Train the model
-    model.train(sentences=sentences,
+    model.train(sentences,
                 total_examples=model.corpus_count,
-                epochs=iterations)
+                epochs=model.epochs)
 
     return model
