@@ -1,76 +1,78 @@
 #!/usr/bin/env python3
-""" Encode a translation dataset into tokenized format """
-import tensorflow.compat.v2 as tf
+"""Encode a translation dataset into tokenized format"""
+
+import tensorflow as tf
 import tensorflow_datasets as tfds
+import transformers
 
 
 class Dataset:
-    """ Dataset class """
+    """Dataset class"""
+
     def __init__(self):
-        """ Class constructor """
-        # Load the dataset with metadata and as supervised
-        examples, metadata = tfds.load('ted_hrlr_translate/pt_to_en',
-                                       with_info=True,
-                                       as_supervised=True)
+        """Class constructor"""
+        examples, metadata = tfds.load(
+            'ted_hrlr_translate/pt_to_en',
+            with_info=True,
+            as_supervised=True
+        )
         self.metadata = metadata
-        self.data_train = examples['train']  # training dataset
-        self.data_valid = examples['validation']  # Validation dataset
+        self.data_train = examples['train']
+        self.data_valid = examples['validation']
+
+        # Build sub‑word tokenizers from the training corpus
         self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(
-            self.data_train)  # Create sub-word tokenizers
+            self.data_train
+        )
+
+        # Replace raw datasets with tokenised versions
+        self.data_train = self.data_train.map(self.tf_encode)
+        self.data_valid = self.data_valid.map(self.tf_encode)
 
     def tokenize_dataset(self, data):
         """
-        Creates sub-word tokenizers for dataset
-        Arguments:
-            - data is a tf.data.Dataset whose examples are formatted as a
-              tuple (pt, en)
-                - pt is the tf.Tensor containing the Portuguese sentence
-                - en is the tf.Tensor containing the corresponding English
-                  sentence
-        Returns:
-            tokenizer_pt, tokenizer_en
-                - tokenizer_pt is the Portuguese tokenizer
-                - tokenizer_en is the English tokenizer
+        Build two SubwordTextEncoder tokenisers from a tf.data.Dataset.
+        The generator yields raw sentences so that SubwordTextEncoder
+        can build its vocabulary without loading everything in memory.
         """
-        # Create Portuguese tokenizer from the corpus
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.\
             build_from_corpus(
-                (pt.numpy() for pt, en in data),
-                target_vocab_size=2**15
+                (pt.numpy() for pt, _ in data),
+                target_vocab_size=2 ** 15
             )
-
-        # Create English tokenizer from the corpus
         tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.\
             build_from_corpus(
-                (en.numpy() for pt, en in data),
-                target_vocab_size=2**15
+                (en.numpy() for _, en in data),
+                target_vocab_size=2 ** 15
             )
-
         return tokenizer_pt, tokenizer_en
 
     def encode(self, pt, en):
         """
-        Encodes a translation into tokens
-        Arguments:
-            - pt is the tf.Tensor containing the Portuguese sentence
-            - en is the tf.Tensor containing the corresponding English sentence
-        Returns:
-            pt_tokens, en_tokens
-                - pt_tokens is a tf.Tensor containing the Portuguese tokens
-                - en_tokens is a tf.Tensor containing the English tokens
+        Encode a pair of sentences (Portuguese, English) into lists of
+        integer sub‑word indices, adding <start> and <end> tokens.
         """
-        # Define start and end token indices for Portuguese
-        pt_start_index = self.tokenizer_pt.vocab_size
-        pt_end_index = pt_start_index + 1
-        # Define start and end token indices for English
-        en_start_index = self.tokenizer_en.vocab_size
-        en_end_index = en_start_index + 1
+        pt_start = self.tokenizer_pt.vocab_size
+        en_start = self.tokenizer_en.vocab_size
 
-        # Encode Portuguese sentence into tokens with start and end tokens
-        pt_tokens = [pt_start_index] + self.tokenizer_pt.encode(
-            pt.numpy()) + [pt_end_index]
-        # Encode English sentence into tokens with start and end tokens
-        en_tokens = [en_start_index] + self.tokenizer_en.encode(
-            en.numpy()) + [en_end_index]
+        pt_tokens = [pt_start] + self.tokenizer_pt.encode(
+            pt.numpy()) + [pt_start + 1]
+        en_tokens = [en_start] + self.tokenizer_en.encode(
+            en.numpy()) + [en_start + 1]
 
         return pt_tokens, en_tokens
+
+    def tf_encode(self, pt, en):
+        """
+        TensorFlow wrapper around self.encode so that it can be used
+        inside tf.data pipelines.
+        """
+        pt_lang, en_lang = tf.py_function(
+            func=self.encode,
+            inp=[pt, en],
+            Tout=[tf.int64, tf.int64]
+        )
+        pt_lang.set_shape([None])
+        en_lang.set_shape([None])
+
+        return pt_lang, en_lang
