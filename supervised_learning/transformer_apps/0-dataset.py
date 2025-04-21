@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ Dataset class """
 import tensorflow_datasets as tfds
-import tensorflow.compat.v2 as tf
+
 
 class Dataset:
     """ Dataset class """
@@ -22,15 +22,14 @@ class Dataset:
 
     def tokenize_dataset(self, data):
         """
-        Creates sub-word tokenizers from dataset
+        Creates sub-word tokenizers for dataset
         """
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            (pt.numpy() for pt, en in data),
+            (pt.numpy().decode('utf-8') for pt, _ in tfds.as_numpy(data)),
             target_vocab_size=2**13
         )
         tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            (en.numpy() for pt, en in data),
+            (en.numpy().decode('utf-8') for _, en in tfds.as_numpy(data)),
             target_vocab_size=2**13
         )
-
         return tokenizer_pt, tokenizer_en
