@@ -1,4 +1,4 @@
-#!/usr/bin/enV python3
+#!/usr/bin/env python3
 """ Multi Head Attention """
 import tensorflow as tf
 
