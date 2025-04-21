@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """ Creates and trains a gensim word2vec model """
-from gensim.models import Word2Vec
+from gensim
 
 
 def word2vec_model(sentences, size=100, min_count=5, window=5,
@@ -27,7 +27,7 @@ def word2vec_model(sentences, size=100, min_count=5, window=5,
     sg = 0 if cbow else 1  # 0 for CBOW, 1 for Skip-gram
 
     # Create and train the model
-    model = Word2Vec(
+    model = gensim.models.Word2Vec(
         sentences=sentences,
         size=size,
         min_count=min_count,
@@ -41,7 +41,7 @@ def word2vec_model(sentences, size=100, min_count=5, window=5,
 
     model.save("word2vec.model")
 
-    model = Word2Vec.load("word2vec.model")
+    model = gensim.models.Word2Vec.load("word2vec.model")
 
     # Train the model
     model.train(sentences=sentences,
