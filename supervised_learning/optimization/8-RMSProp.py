@@ -24,4 +24,4 @@ def create_RMSProp_op(alpha, beta2, epsilon):
                                           epsilon=epsilon)
 
     # Return the RMSProp optimization operation
-    return optimizers
+    return optimizer
