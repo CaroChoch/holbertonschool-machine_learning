@@ -17,6 +17,6 @@ def l2_reg_cost(cost, model):
     """
     # Calculate the regularization cost by adding L2 regularization
     # losses to the base cost
-    l2_regularized_cost = cost + tf.add_n(model.losses)
+    l2_regularized_losses = model.losses
     # Return the final L2 regularized cost
-    return l2_regularized_cost
+    return cost + l2_regularized_losses
