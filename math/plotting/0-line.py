@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Module that draws a red cubic curve"""
 import numpy as np
 import matplotlib.pyplot as plt
 
