@@ -24,14 +24,15 @@ class Dataset:
 
     def tokenize_dataset(self, data):
         """
-        Creates sub-word tokenizers for dataset
+        Creates sub-word tokenizers for dataset using numpy generator
+        to avoid timeout
         """
         pt_sentences = []
         en_sentences = []
 
-        for pt, en in data:
-            pt_sentences.append(pt.numpy().decode('utf-8'))
-            en_sentences.append(en.numpy().decode('utf-8'))
+        for pt, en in tfds.as_numpy(data):
+            pt_sentences.append(pt.decode('utf-8'))
+            en_sentences.append(en.decode('utf-8'))
 
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
             pt_sentences, target_vocab_size=2 ** 15
@@ -61,7 +62,7 @@ class Dataset:
 
     def tf_encode(self, pt, en):
         """
-        Acts as a tensorflow wrapper for the 'encode' instance method
+        TensorFlow wrapper around self.encode
         """
         pt_tokens, en_tokens = tf.py_function(
             func=self.encode,
@@ -70,5 +71,4 @@ class Dataset:
         )
         pt_tokens.set_shape([None])
         en_tokens.set_shape([None])
-
         return pt_tokens, en_tokens
