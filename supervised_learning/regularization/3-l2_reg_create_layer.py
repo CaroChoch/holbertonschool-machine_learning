@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Function that creates a tensorflow layer that includes L2 regularization"""
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 
 def l2_reg_create_layer(prev, n, activation, lambtha):
@@ -20,10 +20,9 @@ def l2_reg_create_layer(prev, n, activation, lambtha):
     # Regularize the weights with L2 regularization
     regularizer = tf.keras.regularizers.l2(lambtha)
     # Create the layer with the previous initializer and regularizer
-    layer = tf.layers.Dense(units=n,
-                            activation=activation,
-                            kernel_initializer=initializer,
-                            kernel_regularizer=regularizer,
-                            name="layer")
+    layer = tf.keras.layers.Dense(units=n,
+                                  activation=activation,
+                                  kernel_initializer=initializer,
+                                  kernel_regularizer=regularizer)
     # Return the output of the new layer
     return layer(prev)
