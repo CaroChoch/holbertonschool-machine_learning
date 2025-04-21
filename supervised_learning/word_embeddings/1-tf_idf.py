@@ -34,7 +34,7 @@ def tf_idf(sentences, vocab=None):
     # Converting the sparse matrix X into a dense numpy array
     embeddings = X.toarray()
     # Assigning the vocabulary to the features list
-    features = vocab
+    features = np.array(vocab)
 
     # Returning the embeddings and features
     return embeddings, features
