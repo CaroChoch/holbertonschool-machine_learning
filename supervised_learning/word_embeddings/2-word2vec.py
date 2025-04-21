@@ -3,8 +3,8 @@
 import gensim
 
 
-def word2vec_model(sentences, size=100, min_count=5, window=5,
-                   negative=5, cbow=True, iterations=5, seed=0,
+def word2vec_model(sentences, vector_size=100, min_count=5, window=5,
+                   negative=5, cbow=True, epochs=5, seed=0,
                    workers=1):
     """
     Creates and trains a gensim word2vec model
@@ -29,12 +29,12 @@ def word2vec_model(sentences, size=100, min_count=5, window=5,
     # Create and train the model
     model = gensim.models.Word2Vec(
         sentences=sentences,
-        size=size,
+        vector_size=vector_size,
         min_count=min_count,
         window=window,
         negative=negative,
         sg=sg,
-        iter=iterations,
+        epochs=epochs,
         seed=seed,
         workers=workers,
     )
@@ -46,6 +46,6 @@ def word2vec_model(sentences, size=100, min_count=5, window=5,
     # Train the model
     model.train(sentences=sentences,
                 total_examples=model.corpus_count,
-                epochs=iterations)
+                epochs=epochs)
 
     return model
