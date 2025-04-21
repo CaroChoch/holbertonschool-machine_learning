@@ -41,7 +41,7 @@ def word2vec_model(sentences, vector_size=100, min_count=5, window=5,
     
     model.save("word2vec.model")
 
-    model = Word2Vec.load("word2vec.model")
+    model = gensim.models.Word2Vec.load("word2vec.model")
 
     # Train the model
     model.train(sentences,
