@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """ Creates and trains a gensim word2vec model """
-from gensim
+import gensim
 
 
 def word2vec_model(sentences, size=100, min_count=5, window=5,
