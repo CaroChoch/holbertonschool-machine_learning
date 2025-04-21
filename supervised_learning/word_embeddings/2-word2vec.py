@@ -38,10 +38,8 @@ def word2vec_model(sentences, vector_size=100, min_count=5, window=5,
         seed=seed,
         workers=workers,
     )
-    
-    model.save("word2vec.model")
 
-    model = gensim.models.Word2Vec.load("word2vec.model")
+    model.build_vocab(sentences)
 
     # Train the model
     model.train(sentences,
