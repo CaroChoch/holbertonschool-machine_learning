@@ -2,10 +2,10 @@
 """
 Function that calculates the cost of a neural network with L2 regularization
 """
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 
-def l2_reg_cost(cost):
+def l2_reg_cost(cost, model):
     """
     Function that calculates the cost of a neural network with L2
     regularization
@@ -17,6 +17,6 @@ def l2_reg_cost(cost):
     """
     # Calculate the regularization cost by adding L2 regularization
     # losses to the base cost
-    l2_regularized_cost = cost + tf.losses.get_regularization_losses()
+    l2_regularized_cost = cost + tf.add_n(model.losses)
     # Return the final L2 regularized cost
     return l2_regularized_cost
