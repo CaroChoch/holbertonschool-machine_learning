@@ -24,7 +24,7 @@ def tf_idf(sentences, vocab=None):
         # Fitting the vectorizer and transforming sentences into vectors
         X = vectorizer.fit_transform(sentences)
         # Getting the vocabulary from the vectorizer
-        vocab = vectorizer.get_feature_names()
+        vocab = vectorizer.get_feature_names_out()
     else:
         # Initializing TF-IDF vectorizer with provided vocab
         vectorizer = TfidfVectorizer(vocabulary=vocab)
