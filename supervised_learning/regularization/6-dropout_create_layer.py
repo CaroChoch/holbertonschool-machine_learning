@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """ Function that creates a layer of a neural network using dropout """
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 
-def dropout_create_layer(prev, n, activation, keep_prob):
+def dropout_create_layer(prev, n, activation, keep_prob, training=True):
     """
     Function that creates a layer of a neural network using dropout
     Arguments:
@@ -17,11 +17,12 @@ def dropout_create_layer(prev, n, activation, keep_prob):
     # Initialize weights using He et al. initialization
     initializer = tf.keras.initializers.VarianceScaling(scale=2.0,
                                                         mode="fan_avg")
-    layer = tf.layers.Dense(units=n,
-                            activation=activation,
-                            kernel_initializer=initializer,
-                            name="layer")
+    dense_layer = tf.keras.layers.Dense(units=n,
+                                        activation=activation,
+                                        kernel_initializer=initializer)
     # Apply dropout to the layer
-    dropout = tf.layers.Dropout(keep_prob)
-    # Return the output of the new layer
-    return dropout(layer(prev))
+    dropout_layer = tf.keras.layers.Dropout(rate=1 - keep_prob)
+
+    x = dense_layer(prev)
+
+    return dropout_layer(x, training=training)
