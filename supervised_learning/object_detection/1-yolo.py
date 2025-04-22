@@ -1,9 +1,7 @@
-#!/usr/bin/env python3#!/usr/bin/env python3
+#!/usr/bin/env python3
 """ Class Yolo that uses the Yolo v3 algorithm to perform object detection """
 
-import tensorflow as tf
 import numpy as np
-import tensorflow.keras as K
 from tensorflow import keras as K
 
 
@@ -39,76 +37,69 @@ class Yolo:
         self.anchors = anchors
 
     def process_outputs(self, outputs, image_size):
-        """Process outputs from Darknet model.
+        """
+        Converts model outputs into boundary box coordinates, confidences,
+        and class probabilities.
 
         Args:
-            outputs (list): List of numpy.ndarrays containing predictions
-                          Shape (grid_h, grid_w, anchors, 4 + 1 + classes)
-                          4: (t_x, t_y, t_w, t_h)
-                          1: box_confidence
-                          classes: class probabilities
-            image_size (ndarray): Original image size [height, width]
+            - outputs (list of np.ndarray): Raw predictions from the model.
+                Each array shape: (grid_h, grid_w,
+                    num_anchors, 4 + 1 + num_classes)
+            - image_size (tuple or list): Original image dimensions
+                (height, width)
 
         Returns:
             tuple: (boxes, box_confidences, box_class_probs)
-                  boxes: processed boundary boxes (x1, y1, x2, y2)
-                  box_confidences: box confidences for each output
-                  box_class_probs: class probabilities for each output
+                - boxes: (x1, y1, x2, y2) coordinates in original image scale
+                - box_confidences: objectness scores
+                - box_class_probs: class probabilities
         """
-        boxes = []
-        box_confidences = []
-        box_class_probs = []
+        processed_boxes = []
+        confidences = []
+        class_probs = []
+
+        img_h, img_w = image_size
 
         for i, output in enumerate(outputs):
-            # Get current output dimensions
-            grid_h, grid_w, anchors_count, _ = output.shape
+            grid_h, grid_w, num_anchors, _ = output.shape
 
-            # Extract box components
-            t_x = output[..., 0]
-            t_y = output[..., 1]
-            t_w = output[..., 2]
-            t_h = output[..., 3]
+            # Get box center coordinates using sigmoid
+            box_xy = 1 / (1 + np.exp(-output[..., :2]))
 
-            # Get confidence scores and class probabilities
-            box_conf = 1 / (1 + np.exp(-(output[..., 4:5])))
-            class_prob = 1 / (1 + np.exp(-(output[..., 5:])))
+            # Get box width and height using exponential and anchor boxes
+            box_wh = np.exp(output[..., 2:4]) * self.anchors[i]
 
-            # Get model input dimensions
-            input_w = self.model.input.shape[1].value
-            input_h = self.model.input.shape[2].value
+            # Confidence score for object presence
+            object_confidence = 1 / (1 + np.exp(-output[..., 4:5]))
 
-            # Get current anchor boxes
-            current_anchors = self.anchors[i]
-            anchor_w = current_anchors[:, 0]
-            anchor_h = current_anchors[:, 1]
+            # Class probabilities
+            class_probabilities = 1 / (1 + np.exp(-output[..., 5:]))
 
-            # Reshape anchors for broadcasting
-            box_w = anchor_w.reshape(1, 1, len(anchor_w))
-            box_h = anchor_h.reshape(1, 1, len(anchor_h))
+            # Create grid indices for each cell
+            grid_x = np.tile(np.arange(grid_w), grid_h).reshape(-1, grid_w)
+            grid_y = np.tile(np.arange(grid_h).reshape(-1, 1), grid_w)
 
-            # Calculate box center coordinates
-            box_x = (t_x + grid_w / 2) / grid_w
-            box_y = (t_y + grid_h / 2) / grid_h
+            # Reshape to match anchor dimensions
+            grid_x = grid_x.reshape(grid_h, grid_w, 1, 1).repeat(3, axis=-2)
+            grid_y = grid_y.reshape(grid_h, grid_w, 1, 1).repeat(3, axis=-2)
 
-            # Scale dimensions
-            box_w = box_w * input_w
-            box_h = box_h * input_h
+            # Offset box center by grid cell position
+            box_xy += np.concatenate((grid_x, grid_y), axis=-1)
+            box_xy /= (grid_w, grid_h)
+            box_wh /= (self.model.input.shape[1], self.model.input.shape[2])
 
-            # Calculate box corner coordinates
-            x1 = box_x - box_w / 2
-            y1 = box_y - box_h / 2
-            x2 = box_x + box_w / 2
-            y2 = box_y + box_h / 2
+            # Convert center coordinates to top-left and bottom-right
+            top_left = box_xy - (box_wh / 2)
+            top_left_scaled = top_left * (img_w, img_h)
+            bottom_right_scaled = (top_left + box_wh) * (img_w, img_h)
 
-            # Store processed outputs
-            boxes.append(np.concatenate((x1, y1, x2, y2), axis=-1))
-            box_confidences.append(box_conf)
-            box_class_probs.append(class_prob)
+            # Concatenate top-left and bottom-right points
+            boxes = np.concatenate((top_left_scaled, bottom_right_scaled),
+                                   axis=-1)
 
-        # Convert lists to numpy arrays
-        boxes = np.array(boxes)
-        box_confidences = np.array(box_confidences)
-        box_class_probs = np.array(box_class_probs)
+            # Append results for this output
+            processed_boxes.append(boxes)
+            confidences.append(object_confidence)
+            class_probs.append(class_probabilities)
 
-        # Return processed outputs : boxes, box_confidences, box_class_probs
-        return boxes, box_confidences, box_class_probs
+        return processed_boxes, confidences, class_probs
