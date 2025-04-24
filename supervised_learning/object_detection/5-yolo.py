@@ -284,18 +284,14 @@ class Yolo:
         pimages = []
         image_shapes = []
 
+        # Get the input shape of the model
+        input_h = self.model.input.shape[1]
+        input_w = self.model.input.shape[2]
+
         for image in images:
-            # Save original image shape
-            original_shape = image.shape[:2]
-            image_shapes.append(original_shape)
-
-            # Get the input shape of the model
-            input_h = self.model.input.shape[1]
-            input_w = self.model.input.shape[2]
-
             # Resize image with inter-cubic interpolation
             resized_image = cv2.resize(image,
-                                       (input_w, input_h),
+                                       (input_h, input_w),
                                        interpolation=cv2.INTER_CUBIC)
 
             # Rescale pixel values to [0, 1]
@@ -303,6 +299,10 @@ class Yolo:
 
             # Append the preprocessed image to the list
             pimages.append(rescaled_image)
+
+            # Save original image shape
+            original_shape = image.shape[:2]
+            image_shapes.append(original_shape)
 
         # Convert the list of preprocessed images to a numpy array
         pimages = np.array(pimages)
