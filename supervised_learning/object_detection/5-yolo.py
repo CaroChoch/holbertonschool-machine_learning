@@ -281,10 +281,6 @@ class Yolo:
                 - pimages: Preprocessed images as numpy.ndarray
                 - image_shapes: Original shapes of the images
         """
-        # Get the input shape of the model
-        input_h = self.model.input.shape[1]
-        input_w = self.model.input.shape[2]
-
         pimages = []
         image_shapes = []
 
@@ -292,6 +288,10 @@ class Yolo:
             # Save original image shape
             original_shape = image.shape[:2]
             image_shapes.append(original_shape)
+
+            # Get the input shape of the model
+            input_h = self.model.input.shape[1]
+            input_w = self.model.input.shape[2]
 
             # Resize image with inter-cubic interpolation
             resized_image = cv2.resize(image,
