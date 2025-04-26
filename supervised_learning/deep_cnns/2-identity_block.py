@@ -63,5 +63,8 @@ def identity_block(A_prev, filters):
     # Merge output of left branch and right branch (input A_prev)
     merged = K.layers.Add()([norm3, A_prev])
 
-    # Return activated output of merge, using ReLU
-    return K.layers.Activation(activation="relu")(merged)
+    # Activate the final output
+    activated_output = K.layers.Activation(activation='relu')(merged)
+
+    # Return the activated output
+    return activated_output
