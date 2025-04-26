@@ -59,4 +59,5 @@ def identity_block(A_prev, filters):
     # Activate the final output
     activated_output = K.layers.Activation(activation='relu')(sum_result)
 
+    # Return the activated output
     return activated_output
