@@ -3,6 +3,7 @@
 Function that builds an identity block as described in Deep Residual
 Learning for Image Recognition (2015)
 """
+
 from tensorflow import keras as K
 
 
