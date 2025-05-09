@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TF encode wrapper for TensorFlow."""
+"""Dataset class with TensorFlow encoding wrapper."""
 import tensorflow_datasets as tfds
 import transformers
 import tensorflow as tf
@@ -9,16 +9,21 @@ class Dataset:
     """Dataset class for Portuguese-English translations."""
 
     def __init__(self):
-        """Initialize the Dataset, build tokenizers, and encode data."""
-        # Load the TED talk translation dataset
-        self.data_train, self.data_valid = tfds.load(
-            "ted_hrlr_translate/pt_to_en",
-            split=["train", "validation"],
+        """Class constructor: load data, build tokenizers, and encode examples."""
+        # Load the TED talk translation dataset with info
+        examples, metadata = tfds.load(
+            'ted_hrlr_translate/pt_to_en',
+            with_info=True,
             as_supervised=True
         )
+        self.metadata = metadata
+        self.data_train = examples['train']
+        self.data_valid = examples['validation']
 
-        # Build subword tokenizers using a subset of the training data to speed up
-        self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(self.data_train)
+        # Build subword tokenizers from a subset to speed up
+        self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(
+            self.data_train
+        )
 
         # Apply the TensorFlow wrapper for encoding
         self.data_train = self.data_train.map(self.tf_encode)
@@ -26,25 +31,28 @@ class Dataset:
 
     def tokenize_dataset(self, data):
         """
-        Create SubwordTextEncoder tokenizers for Portuguese and English
-        using only the first 10,000 examples to avoid timeout.
+        Creates sub-word tokenizers for dataset using pretrained
+        models adapted to our data via training-from-iterator.
         """
-        # Generators for a subset of sentences
-        pt_gen = (
-            pt.numpy().decode('utf-8')
-            for pt, _ in tfds.as_numpy(data.take(10_000))
+        pt_sentences = []
+        en_sentences = []
+        for pt, en in tfds.as_numpy(data):
+            pt_sentences.append(pt.decode('utf-8'))
+            en_sentences.append(en.decode('utf-8'))
+
+        # Initialize pretrained tokenizers and train on our corpus
+        pretrained_pt = transformers.AutoTokenizer.from_pretrained(
+            'neuralmind/bert-base-portuguese-cased', use_fast=True
         )
-        en_gen = (
-            en.numpy().decode('utf-8')
-            for _, en in tfds.as_numpy(data.take(10_000))
+        pretrained_en = transformers.AutoTokenizer.from_pretrained(
+            'bert-base-uncased', use_fast=True
         )
 
-        # Build the tokenizers from the corpus generators
-        tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            pt_gen, target_vocab_size=2**15
+        tokenizer_pt = pretrained_pt.train_new_from_iterator(
+            pt_sentences, vocab_size=2**13
         )
-        tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            en_gen, target_vocab_size=2**15
+        tokenizer_en = pretrained_en.train_new_from_iterator(
+            en_sentences, vocab_size=2**13
         )
 
         return tokenizer_pt, tokenizer_en
@@ -53,17 +61,17 @@ class Dataset:
         """
         Encode a pair of sentences into token IDs, including start and end tokens.
         """
-        # Define start and end token IDs for each language
+        # Start and end token IDs
         pt_start = self.tokenizer_pt.vocab_size
         pt_end = pt_start + 1
         en_start = self.tokenizer_en.vocab_size
         en_end = en_start + 1
 
-        # Decode bytes to strings
+        # Convert bytes to string
         pt_text = pt.numpy().decode('utf-8')
         en_text = en.numpy().decode('utf-8')
 
-        # Encode to token IDs and add start/end tokens
+        # Tokenize and add start/end
         pt_tokens = [pt_start] + self.tokenizer_pt.encode(pt_text) + [pt_end]
         en_tokens = [en_start] + self.tokenizer_en.encode(en_text) + [en_end]
 
@@ -71,15 +79,15 @@ class Dataset:
 
     def tf_encode(self, pt, en):
         """
-        TensorFlow wrapper around the encode method, returning TensorFlow tensors.
+        TensorFlow wrapper around the `encode` method.
+        Returns two tf.int64 tensors with shape [None].
         """
-        # Use py_function to call the Python encode method
         pt_tokens, en_tokens = tf.py_function(
             func=self.encode,
             inp=[pt, en],
             Tout=[tf.int64, tf.int64]
         )
-        # Set static shape for the tensors (variable length)
+        # Set static shape for TensorFlow
         pt_tokens.set_shape([None])
         en_tokens.set_shape([None])
         return pt_tokens, en_tokens
