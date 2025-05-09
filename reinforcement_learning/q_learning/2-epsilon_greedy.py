@@ -4,7 +4,6 @@ import numpy as np
 
 
 def epsilon_greedy(Q, state, epsilon):
-
     """
     Uses epsilon-greedy to determine the next action
     Arguments:
@@ -17,11 +16,14 @@ def epsilon_greedy(Q, state, epsilon):
     # Generate a random number between 0 and 1
     p = np.random.uniform(0, 1)
 
-    # Select the action with the highest estimated value (exploitation)
-    # or a random action (exploration) based on epsilon
+    # Exploitation: choose among actions with highest Q-value
     if p > epsilon:
-        action = np.argmax(Q[state, :])
+        state_actions = Q[state, :]
+        max_value = np.max(state_actions)
+        max_actions = np.where(state_actions == max_value)[0]
+        action = np.random.choice(max_actions)
     else:
+        # Exploration: choose a random action
         action = np.random.randint(0, Q.shape[1])
 
     return action
