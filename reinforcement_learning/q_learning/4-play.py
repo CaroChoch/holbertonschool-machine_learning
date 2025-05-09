@@ -2,45 +2,49 @@
 """ plays an episode of FrozenLake using Q-learning """
 import numpy as np
 
+
 def play(env, Q, max_steps=100):
     """
-    Plays an episode with a trained agent.
+    Plays an episode with a Q-learning agent.
 
     Arguments:
-        - env: FrozenLakeEnv instance (avec render_mode="ansi")
-        - Q: numpy.ndarray contenant la Q-table
-        - max_steps: nombre maximal de pas à jouer
+        - env: FrozenLakeEnv instance (with render_mode="ansi")
+        - Q: numpy.ndarray containing the Q-table
+        - max_steps: maximum number of steps to play
 
     Returns:
-        total_rewards: float, somme des récompenses obtenues
-        rendered_outputs: list de str, chaque str est soit tout le plateau
-                          ASCII (avec saut de ligne initial), soit la ligne
-                          d’action (e.g. "  (Down)")
+        total_rewards: float, sum of rewards obtained
+        rendered_outputs: list of str, each element is either ""
+                          (to create the initial blank line),
+                          the full ANSI-rendered board,
+                          or an action line like "  (Down)"…
     """
-    # Réinit de l'env et récupération de l'état
+    # Reset the environment and get the initial state
     state = env.reset()[0]
     total_rewards = 0
     actions = ["Left", "Down", "Right", "Up"]
-    rendered_outputs = []
+
+    # Start with a blank line to match the blank line
+    rendered_outputs = [""]
 
     for _ in range(max_steps):
-        # 1) on capture et stocke le plateau complet
+        # Capture and store the full board rendering
         rendered_outputs.append(env.render())
 
-        # 2) on choisit et stocke l'action
+        # Select the best action based on the Q-table
         action = int(np.argmax(Q[state]))
         rendered_outputs.append(f"  ({actions[action]})")
 
-        # 3) on exécute la transition
+        # Take the action in the environment
         next_state, reward, terminated, truncated, _ = env.step(action)
         total_rewards += reward
         state = next_state
 
-        # 4) si fin d’épisode, on affiche le plateau final puis break
+        # If episode is over, render the final board and exit loop
         if terminated or truncated:
             rendered_outputs.append(env.render())
             break
 
-    # 5) on ferme l'environnement
+    # Close the environment and return results
     env.close()
     return total_rewards, rendered_outputs
