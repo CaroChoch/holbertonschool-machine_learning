@@ -21,7 +21,7 @@ def play(env, Q, max_steps=100):
     actions = ["Left", "Down", "Right", "Up"]
     rendered_outputs = []
     # Capture map description once
-    desc = env.desc.tolist()
+    desc = env.unwrapped.desc.tolist()
 
     def board_lines(s):
         """
@@ -37,7 +37,7 @@ def play(env, Q, max_steps=100):
                     line += f'"{cell}"'
                 else:
                     line += cell
-            lines.append(line + '\n')
+            lines.append(line)
         return lines
 
     for _ in range(max_steps):
@@ -47,7 +47,7 @@ def play(env, Q, max_steps=100):
         # Choose best action
         action = np.argmax(Q[state])
         # Append action line
-        rendered_outputs.append(f"  ({actions[action]})\n")
+        rendered_outputs.append(f"  ({actions[action]})")
         # Step
         next_state, reward, terminated, truncated, _ = env.step(action)
         total_rewards += reward
