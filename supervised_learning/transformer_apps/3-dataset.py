@@ -14,7 +14,6 @@ class Dataset:
         - batch_size: batch size for training/validation
         - max_len: maximum number of tokens allowed per sentence
         """
-        # Load the TED talk translation dataset with info
         examples, metadata = tfds.load(
             'ted_hrlr_translate/pt_to_en',
             with_info=True,
@@ -26,32 +25,30 @@ class Dataset:
         self.batch_size = batch_size
         self.max_len = max_len
 
-        # Build tokenizers using a subset to avoid long runtimes
         self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(
             self.data_train
         )
 
-        # Encode datasets
-        self.data_train = self.data_train.map(self.tf_encode)
-        self.data_valid = self.data_valid.map(self.tf_encode)
+        self.data_train = self.data_train.map(
+            self.tf_encode, num_parallel_calls=tf.data.AUTOTUNE
+        )
+        self.data_valid = self.data_valid.map(
+            self.tf_encode, num_parallel_calls=tf.data.AUTOTUNE
+        )
 
-        # Training data pipeline
         self.data_train = self.data_train.filter(self.filter_max_len)
         self.data_train = self.data_train.cache()
         self.data_train = self.data_train.shuffle(20000)
         self.data_train = self.data_train.padded_batch(
-            self.batch_size,
-            padded_shapes=([None], [None])
+            self.batch_size, padded_shapes=([None], [None])
         )
         self.data_train = self.data_train.prefetch(
             tf.data.experimental.AUTOTUNE
         )
 
-        # Validation data pipeline
         self.data_valid = self.data_valid.filter(self.filter_max_len)
         self.data_valid = self.data_valid.padded_batch(
-            self.batch_size,
-            padded_shapes=([None], [None])
+            self.batch_size, padded_shapes=([None], [None])
         )
         self.data_valid = self.data_valid.prefetch(
             tf.data.experimental.AUTOTUNE
@@ -68,14 +65,10 @@ class Dataset:
             pt_sentences.append(pt.decode('utf-8'))
             en_sentences.append(en.decode('utf-8'))
 
-        tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            pt_sentences,
-            target_vocab_size=2**15
-        )
-        tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            en_sentences,
-            target_vocab_size=2**15
-        )
+        tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.\
+            build_from_corpus(pt_sentences, target_vocab_size=2**15)
+        tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.\
+            build_from_corpus(en_sentences, target_vocab_size=2**15)
         return tokenizer_pt, tokenizer_en
 
     def encode(self, pt, en):
