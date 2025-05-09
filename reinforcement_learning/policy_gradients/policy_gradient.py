@@ -3,7 +3,8 @@ import numpy as np
 
 def policy(state, weight):
     """
-    Compute the action probabilities (softmax) given a state and weight matrix.
+    Compute the action probabilities (softmax) given a
+    state and weight matrix.
     Args:
         state: np.ndarray of shape (4,), the current observation.
         weight: np.ndarray of shape (4,2), the policy weights.
