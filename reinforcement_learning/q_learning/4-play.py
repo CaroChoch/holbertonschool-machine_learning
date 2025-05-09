@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ trains an agent that can play an episode of FrozenLake """
 import numpy as np
-import gym
 
 
 def play(env, Q, max_steps=100):
@@ -11,13 +10,12 @@ def play(env, Q, max_steps=100):
         - env: the FrozenLakeEnv instance
         - Q: numpy.ndarray containing the Q-table
         - max_steps: the maximum number of steps in the episode
-    Returns: the total rewards for the episode
+    Returns: the total rewards for the episode and a list of rendered outputs
     """
     state, _ = env.reset()  # Reset the environment for a new episode
     total_rewards = 0  # Initialize total rewards for the episode
-
-    # Mapping of actions to their names
     actions = ["Left", "Down", "Right", "Up"]
+    rendered_outputs = []
 
     def print_board(state):
         """
@@ -26,47 +24,44 @@ def play(env, Q, max_steps=100):
 
         Arguments:
             - state: The current state (position) of the agent in the
-            environment.
+              environment.
+        Returns: the string representation of the board
         """
-        # Convert the description of the environment to a list of lists
         desc = env.desc.tolist()
-
-        # Iterate over each row in the description
+        board = ""
         for i, row in enumerate(desc):
-            # Iterate over each column in the row
             for j, col in enumerate(row):
-                # Calculate the linear index of the current cell
                 index = i * len(row) + j
-                # If the current cell is the agent's position, highlight it
+                cell = col.decode('utf-8')
                 if index == state:
-                    # Print the cell content with backticks
-                    print(f"`{col.decode('utf-8')}`", end='')
+                    board += f"`{cell}`"
                 else:
-                    # Print the cell content normally
-                    print(col.decode('utf-8'), end='')
-            # Print a new line at the end of each row
-            print()
+                    board += cell
+            board += "\n"
+        print(board, end='')
+        return board
 
     for step in range(max_steps):
         # Always exploit the Q-table
         action = np.argmax(Q[state, :])
         next_state, reward, terminated, truncated, info = env.step(action)
 
-        # Display the current state of the board
-        print_board(state)
+        # Display and capture the current board state
+        board_str = print_board(state)
+        rendered_outputs.append(board_str)
 
-        # Convert the action to a readable string and print it
-        print("  ({})".format(actions[action]))
+        # Display and capture the action taken
+        action_str = f"  ({actions[action]})\n"
+        print(action_str, end='')
+        rendered_outputs.append(action_str)
 
         total_rewards += reward  # Accumulate the rewards
-
+        state = next_state  # Move to the next state
         if terminated:
-            state = next_state  # Ensure the final state is printed correctly
             break
 
-        state = next_state  # Move to the next state
+    # Print and capture the final state of the board
+    board_str = print_board(state)
+    rendered_outputs.append(board_str)
 
-    # Print the final state of the board
-    print_board(state)
-
-    return total_rewards
+    return total_rewards, rendered_outputs
