@@ -1,52 +1,54 @@
 #!/usr/bin/env python3
 """
-Function that builds a transition layer as described in Densely
+Function that builds a dense block as described in Densely
 Connected Convolutional Networks
 """
 
-import tensorflow.keras as K
+from tensorflow import keras as K
 
 
-def transition_layer(X, nb_filters, compression):
+def dense_block(X, nb_filters, growth_rate, layers):
     """
-    Function that builds a transition layer as described in Densely
+    Function that builds a dense block as described in Densely
     Connected Convolutional Networks
-
     Arguments:
         - X is the output from the previous layer
         - nb_filters is an integer representing the number of filters in X
-        - compression is the compression factor for the transition layer
-
+        - growth_rate is the growth rate for the dense block
+        - layers is the number of layers in the dense block
     Returns:
-        The output of the transition layer and the number of filters within
-        the output, respectively
+        The concatenated output of each layer within the Dense Block and the
+        number of filters within the concatenated outputs, respectively
     """
-    # He normal initialization is commonly used for ReLU activation functions
-    initializer = K.initializers.he_normal(seed=None)
+    # Initialisation He normal avec graine fixe pour reproductibilité
+    initializer = K.initializers.he_normal(seed=0)
 
-    # Adjust the number of filters based on the compression factor
-    nb_filters_after_compression = int(nb_filters * compression)
-
-    # Batch normalization to normalize the inputs
-    batch_normalization = K.layers.BatchNormalization(axis=3)(X)
-
-    # ReLU activation for introducing non-linearity
-    activated_output = K.layers.Activation('relu')(batch_normalization)
-
-    # 1x1 Convolution layer to adjust the number of filters
-    conv_1x1 = K.layers.Conv2D(
-            filters=nb_filters_after_compression,
+    # Boucle sur les couches du dense block
+    for _ in range(layers):
+        # Bottleneck : BN -> ReLU -> Conv1x1
+        bn1 = K.layers.BatchNormalization(axis=3)(X)
+        act1 = K.layers.Activation('relu')(bn1)
+        conv1 = K.layers.Conv2D(
+            filters=growth_rate * 4,
             kernel_size=(1, 1),
             padding='same',
             kernel_initializer=initializer
-        )(activated_output)
+        )(act1)
 
-    # Average pooling to reduce the spatial dimensions
-    average_pooling = K.layers.AveragePooling2D(
-        pool_size=(2, 2),
-        strides=(2, 2),
-        padding='same'
-    )(conv_1x1)
+        # BN -> ReLU -> Conv3x3
+        bn2 = K.layers.BatchNormalization(axis=3)(conv1)
+        act2 = K.layers.Activation('relu')(bn2)
+        conv2 = K.layers.Conv2D(
+            filters=growth_rate,
+            kernel_size=(3, 3),
+            padding='same',
+            kernel_initializer=initializer
+        )(act2)
 
-    # Return output of the transition layer and the updated number of filters
-    return average_pooling, nb_filters_after_compression
+        # Concatenation avec la sortie précédente
+        X = K.layers.Concatenate(axis=3)([X, conv2])
+
+        # Mise à jour du nombre de filtres total
+        nb_filters += growth_rate
+
+    return X, nb_filters
