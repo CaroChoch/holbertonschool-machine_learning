@@ -20,7 +20,8 @@ def densenet121(growth_rate=32, compression=1.0):
 
     Args:
         growth_rate (int): Feature maps added per layer in each dense block.
-        compression (float): Factor (<=1) to reduce channels in transition layers.
+        compression (float): Factor (<=1) to reduce channels in
+        transition layers.
 
     Returns:
         Keras Model: Instance of DenseNet-121 ready for training or inference.
