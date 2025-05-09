@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """TF encode wrapper for TensorFlow."""
-
 import tensorflow_datasets as tfds
+import transformers
 import tensorflow as tf
 
 
