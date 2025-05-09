@@ -1,65 +1,64 @@
 #!/usr/bin/env python3
-""" implements the training of a neural network model using policy gradients """
+""" Implements the training of a policy gradient model """
 import numpy as np
-import gym
-from policy_gradient import policy_gradient
 
 
-def train(env, nb_episodes, alpha=0.000045, gamma=0.98, show_result=False):
+# Import the policy_gradient function using __import__ as required
+policy_gradient = __import__('policy_gradient').policy_gradient
+
+
+def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
     """
-    Function that implements a full training
+    Trains a model using policy gradients.
+
     Arguments:
-        - env is the initial environment
-        - nb_episodes is the number of episodes used for training
-        - alpha is the learning rate
-        - gamma is the discount factor
-        - show_result is a boolean to determine if the environment will be rendered every 1000 episodes
+    - env: initialized Gym environment
+    - nb_episodes: number of episodes for training
+    - alpha: learning rate
+    - gamma: discount factor
+
     Returns:
-        - all values of the score (sum of all rewards during one episode loop)
+    - List of scores (sum of rewards) per episode
     """
-    # Initialize the weights
+    # Initialize weights randomly with shape (state_dim, action_dim)
     weights = np.random.rand(*env.observation_space.shape, env.action_space.n)
+    scores = []
 
-    # Initialize the list to store scores
-    total_scores = []
-
-    for episode_num in range(1, nb_episodes + 1):
-        current_state = env.reset()[None, :]
+    for episode in range(nb_episodes):
+        # Reset environment and reshape state for dot product
+        state = env.reset()[None, :]
         cumulative_gradient = 0
         episode_score = 0
-        episode_done = False
+        done = False
 
-        while not episode_done:
-            # Compute the action and the gradient
-            action, action_gradient = policy_gradient(current_state, weights)
+        while not done:
+            # Compute action and its gradient wrt weights
+            action, grad = policy_gradient(state, weights)
 
-            # Take a step in the environment
-            next_state, reward, episode_done, info = env.step(action)
+            # Take the action in the environment
+            next_state, reward, done, _ = env.step(action)
             next_state = next_state[None, :]
 
-            # Update the episode score
+            # Accumulate reward for this episode
             episode_score += reward
 
-            # Accumulate the gradient
-            cumulative_gradient += action_gradient
+            # Accumulate gradient from this timestep
+            cumulative_gradient += grad
 
-            # Update the weights
-            weights += (alpha * cumulative_gradient
-                        * (reward + gamma * np.max(next_state.dot(weights))
-                           * (not episode_done) - current_state.dot(weights)[0, action]))
+            # Compute TD target and TD error
+            td_target = reward + gamma * np.max(np.dot(next_state, weights)) * (not done)
+            td_error = td_target - np.dot(state, weights)[0, action]
 
-            # Update the state
-            current_state = next_state
+            # Update weights along the policy gradient
+            weights += alpha * cumulative_gradient * td_error
 
-        # Store the episode score
-        total_scores.append(episode_score)
+            # Move to the next state
+            state = next_state
 
-        # Print the current episode number and the score
-        print("Episode: {}, Score: {}".format(
-            episode_num, episode_score), end="\r", flush=False)
+        # Append total score for this episode
+        scores.append(episode_score)
 
-        # Render the environment every 1000 episodes
-        if show_result and episode_num % 1000 == 0:
-            env.render()
+        # Print episode number and score
+        print(f"Episode: {episode} Score: {float(episode_score)}")
 
-    return total_scores
+    return scores
