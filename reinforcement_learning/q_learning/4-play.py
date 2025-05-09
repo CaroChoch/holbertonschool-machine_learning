@@ -2,7 +2,6 @@
 """ plays an episode of FrozenLake using Q-learning """
 import numpy as np
 
-
 def play(env, Q, max_steps=100):
     """
     Plays an episode with a trained agent.
