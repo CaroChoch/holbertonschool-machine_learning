@@ -3,59 +3,48 @@
 Module to let the trained agent play an episode on FrozenLake.
 """
 
-
 import numpy as np
 
 
 def play(env, Q, max_steps=100):
     """
-    Plays an episode using the trained Q-table and records each state and action.
+    Plays an episode using the trained Q-table.
 
     Args:
         env: FrozenLakeEnv instance with render_mode="ansi"
         Q: numpy.ndarray representing the trained Q-table
-        max_steps: maximum number of steps allowed in the episode
+        max_steps: maximum number of steps in the episode
 
     Returns:
-        total_rewards (float): total reward accumulated during the episode
-        rendered_outputs (list[str]): list of ANSI-rendered states and actions
+        total_rewards (float): total accumulated rewards
+        rendered_outputs (list[str]): list of rendered board states
     """
-    # Reset environment and get the initial state
+    # Initialize the environment and get the initial state
     state = env.reset()[0]
     rendered_outputs = []
-    total_rewards = 0.0
-
-    # Render and capture the initial state
-    rendered_outputs.append(env.render())
-
-    # Map action indices to human-readable names
-    action_mapping = {
-        0: "Left",
-        1: "Down",
-        2: "Right",
-        3: "Up"
-    }
+    total_rewards = 0
 
     for _ in range(max_steps):
-        # Choose the best action (greedy)
-        action = int(np.argmax(Q[state]))
-        action_name = action_mapping[action]
-
-        # Record the chosen action first
-        rendered_outputs.append(f"  ({action_name})")
-
-        # Take the action in the environment
-        next_state, reward, done, truncated, _ = env.step(action)
-
-        # Render and capture the new state after the action
+        # Capture the current board state
         rendered_outputs.append(env.render())
 
-        # Update total rewards and state
+        # Select the best action using the Q-table
+        action = np.argmax(Q[state])
+
+        # Execute the action and observe the outcome
+        next_state, reward, done, _, _ = env.step(action)
+
+        # Accumulate the reward
         total_rewards += reward
+
+        # Move to the next state
         state = next_state
 
-        # End episode if terminated or truncated
-        if done or truncated:
+        # Exit the loop if the episode is finished
+        if done:
             break
+
+    # Render the final board state after the episode ends
+    rendered_outputs.append(env.render())
 
     return total_rewards, rendered_outputs
