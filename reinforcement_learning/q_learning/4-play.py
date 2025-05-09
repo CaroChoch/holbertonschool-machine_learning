@@ -56,7 +56,11 @@ def play(env, Q, max_steps=100):
             break
 
     # Append final board rows
-    for ln in board_lines(state):
-        rendered_outputs.append(ln)
+    final_lines = board_lines(state)
+    for i, ln in enumerate(final_lines):
+        if i == len(final_lines) - 1:
+            rendered_outputs.append(ln + "\n")
+        else:
+            rendered_outputs.append(ln)
 
     return total_rewards, rendered_outputs
