@@ -37,7 +37,7 @@ def play(env, Q, max_steps=100):
                     line += f'"{cell}"'
                 else:
                     line += cell
-            lines.append(line)
+            lines.append(line + '\n')
         return lines
 
     for _ in range(max_steps):
@@ -47,7 +47,7 @@ def play(env, Q, max_steps=100):
         # Choose best action
         action = np.argmax(Q[state])
         # Append action line
-        rendered_outputs.append(f"  ({actions[action]})")
+        rendered_outputs.append(f"  ({actions[action]})\n")
         # Step
         next_state, reward, terminated, truncated, _ = env.step(action)
         total_rewards += reward
@@ -58,9 +58,5 @@ def play(env, Q, max_steps=100):
     # Append final board rows
     for ln in board_lines(state):
         rendered_outputs.append(ln)
-
-    # Ensure there's a newline at the end of the output
-    if rendered_outputs and not rendered_outputs[-1].endswith('\n'):
-        rendered_outputs[-1] += '\n'
 
     return total_rewards, rendered_outputs
