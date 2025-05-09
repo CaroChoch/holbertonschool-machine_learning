@@ -35,8 +35,7 @@ def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
             # Compute action and its gradient wrt weights
             action, grad = policy_gradient(state, weights)
 
-            # Take the action
-            # Gymnasium returns: observation, reward, terminated, truncated, info
+            # Gymnasium returns
             next_obs, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
 
