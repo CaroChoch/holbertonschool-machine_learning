@@ -15,7 +15,7 @@ class Dataset:
             - batch_size: integer, batch size for training/validation
             - max_len: integer, max number of tokens allowed per sentence
         """
-        # Load dataset with info and as_supervised tuples
+        # Load dataset with info and as_supervised
         examples, metadata = tfds.load(
             'ted_hrlr_translate/pt_to_en',
             with_info=True,
@@ -27,7 +27,7 @@ class Dataset:
         self.batch_size = batch_size
         self.max_len = max_len
 
-        # Build subword tokenizers
+        # Build subword tokenizers from train subset
         self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(
             self.data_train
         )
@@ -36,7 +36,7 @@ class Dataset:
         self.data_train = self.data_train.map(self.tf_encode)
         self.data_valid = self.data_valid.map(self.tf_encode)
 
-        # Training data pipeline
+        # Training pipeline: filter, cache, shuffle, batch, prefetch
         self.data_train = self.data_train.filter(self.filter_max_len)
         self.data_train = self.data_train.cache()
         self.data_train = self.data_train.shuffle(20000)
@@ -48,7 +48,7 @@ class Dataset:
             tf.data.experimental.AUTOTUNE
         )
 
-        # Validation data pipeline
+        # Validation pipeline: filter, batch
         self.data_valid = self.data_valid.filter(self.filter_max_len)
         self.data_valid = self.data_valid.padded_batch(
             self.batch_size,
@@ -58,7 +58,7 @@ class Dataset:
     def tokenize_dataset(self, data):
         """
         Creates sub-word tokenizers for dataset
-        using pretrained models adapted to our data
+        using pretrained models trained on our data
         """
         pt_sentences = []
         en_sentences = []
@@ -66,7 +66,6 @@ class Dataset:
             pt_sentences.append(pt.decode('utf-8'))
             en_sentences.append(en.decode('utf-8'))
 
-        # Initialize pretrained tokenizers and train on corpus
         pretrained_pt = transformers.AutoTokenizer.from_pretrained(
             'neuralmind/bert-base-portuguese-cased', use_fast=True
         )
@@ -85,26 +84,22 @@ class Dataset:
 
     def encode(self, pt, en):
         """
-        Encodes a translation into tokens
+        Encodes a translation into tokens with start/end markers
         """
-        # Define start/end token IDs
         pt_start = self.tokenizer_pt.vocab_size
         pt_end = pt_start + 1
         en_start = self.tokenizer_en.vocab_size
         en_end = en_start + 1
 
-        # Encode sentences and add start/end
-        pt_tokens = [pt_start] + self.tokenizer_pt.encode(
-            pt.numpy()) + [pt_end]
-        en_tokens = [en_start] + self.tokenizer_en.encode(
-            en.numpy()) + [en_end]
+        pt_tokens = [pt_start] + self.tokenizer_pt.encode(pt.numpy()) + [pt_end]
+        en_tokens = [en_start] + self.tokenizer_en.encode(en.numpy()) + [en_end]
 
         return pt_tokens, en_tokens
 
     def tf_encode(self, pt, en):
         """
-        TensorFlow wrapper around encode method
-        Returns two tf.int64 tensors with shape [None]
+        TensorFlow wrapper around the encode method
+        Returns two tf.int64 tensors shaped [None]
         """
         pt_tokens, en_tokens = tf.py_function(
             func=self.encode,
@@ -117,7 +112,7 @@ class Dataset:
 
     def filter_max_len(self, pt, en):
         """
-        Filters out examples longer than max_len
+        Filters out examples longer than max_len tokens
         """
         return tf.logical_and(
             tf.size(pt) <= self.max_len,
