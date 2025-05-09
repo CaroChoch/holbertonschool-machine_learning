@@ -48,7 +48,8 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
             new_action = epsilon_greedy(Q, new_state, epsilon)
 
             # Compute TD error
-            td_error = reward + gamma * Q[new_state, new_action] - Q[state, action]
+            td_error = (reward + gamma * Q[new_state, new_action]
+                        - Q[state, action])
 
             # Update eligibility trace for the current state-action pair
             eligibility_trace[state, action] += 1
@@ -65,6 +66,8 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
             state, action = new_state, new_action
 
         # Decay epsilon
-        epsilon = min_epsilon + (epsilon_init - min_epsilon) * np.exp(-epsilon_decay * ep)
+        epsilon = (min_epsilon
+                   + (epsilon_init - min_epsilon)
+                   * np.exp(-epsilon_decay * ep))
 
     return Q
