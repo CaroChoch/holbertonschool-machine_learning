@@ -23,16 +23,13 @@ def projection_block(A_prev, filters, s=2):
     """
     F11, F3, F12 = filters
 
-    # He normal initialization is commonly used for ReLU activations
-    initializer = K.initializers.HeNormal(seed=0)
-
     # First component of main path
     conv1 = K.layers.Conv2D(
         filters=F11,
         kernel_size=(1, 1),
         strides=s,
         padding='same',
-        kernel_initializer=initializer
+        kernel_initializer=K.initializers.HeNormal(seed=0)
     )(A_prev)
     batch_normalization_1 = K.layers.BatchNormalization(axis=3)(conv1)
     relu_1 = K.layers.Activation('relu')(batch_normalization_1)
@@ -43,7 +40,7 @@ def projection_block(A_prev, filters, s=2):
         kernel_size=(3, 3),
         strides=(1, 1),
         padding='same',
-        kernel_initializer=initializer
+        kernel_initializer=K.initializers.HeNormal(seed=0)
     )(relu_1)
     batch_normalization_2 = K.layers.BatchNormalization(axis=3)(conv2)
     relu_2 = K.layers.Activation('relu')(batch_normalization_2)
@@ -54,7 +51,7 @@ def projection_block(A_prev, filters, s=2):
         kernel_size=(1, 1),
         strides=(1, 1),
         padding='same',
-        kernel_initializer=initializer
+        kernel_initializer=K.initializers.HeNormal(seed=0)
     )(relu_2)
     batch_normalization_3 = K.layers.BatchNormalization(axis=3)(conv3)
 
@@ -64,7 +61,7 @@ def projection_block(A_prev, filters, s=2):
         kernel_size=(1, 1),
         strides=s,
         padding='same',
-        kernel_initializer=initializer
+        kernel_initializer=K.initializers.HeNormal(seed=0)
     )(A_prev)
     batch_normalization_shortcut = K.layers.BatchNormalization(
         axis=3)(shortcut_connection)
