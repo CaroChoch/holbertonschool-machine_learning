@@ -20,49 +20,35 @@ def dense_block(X, nb_filters, growth_rate, layers):
         The concatenated output of each layer within the Dense Block and the
         number of filters within the concatenated outputs, respectively
     """
-    # He normal initialization is commonly used for ReLU activation functions
-    initializer = K.initializers.HeNormal(seed=None)
+    # Initialisation He normal avec graine fixe pour reproductibilité
+    initializer = K.initializers.he_normal(seed=0)
 
-    # Loop through the specified number of layers in the dense block
-    for layer in range(layers):
-
-        # Batch normalization to normalize the inputs
-        batch_normalization_1 = K.layers.BatchNormalization(axis=3)(X)
-
-        # ReLU activation for introducing non-linearity
-        activated_output_1 = K.layers.Activation('relu')(batch_normalization_1)
-
-        # step 1
-        # 1x1 Convolution Layer (Dimension Reduction):
-        conv_1x1 = K.layers.Conv2D(
+    # Boucle sur les couches du dense block
+    for _ in range(layers):
+        # Bottleneck : BN -> ReLU -> Conv1x1
+        bn1 = K.layers.BatchNormalization(axis=3)(X)
+        act1 = K.layers.Activation('relu')(bn1)
+        conv1 = K.layers.Conv2D(
             filters=growth_rate * 4,
             kernel_size=(1, 1),
             padding='same',
             kernel_initializer=initializer
-        )(activated_output_1)
+        )(act1)
 
-        # Batch normalization after the first convolution
-        batch_normalization_2 = K.layers.BatchNormalization(axis=3)(conv_1x1)
-
-        # ReLU activation after the second batch normalization
-        activated_output_2 = K.layers.Activation('relu')(batch_normalization_2)
-
-        # step 2
-        # 3x3 Convolution layer (Feature Extraction)
-        # on reduced-dimensional representation
-        conv_3x3 = K.layers.Conv2D(
+        # BN -> ReLU -> Conv3x3
+        bn2 = K.layers.BatchNormalization(axis=3)(conv1)
+        act2 = K.layers.Activation('relu')(bn2)
+        conv2 = K.layers.Conv2D(
             filters=growth_rate,
             kernel_size=(3, 3),
             padding='same',
             kernel_initializer=initializer
-        )(activated_output_2)
+        )(act2)
 
-        # Step 3
-        # Concatenate previous layer's output with 3x3 convolution's output
-        X = K.layers.concatenate([X, conv_3x3])
+        # Concatenation avec la sortie précédente
+        X = K.layers.Concatenate(axis=3)([X, conv2])
 
-        # Update the total number of filters
+        # Mise à jour du nombre de filtres total
         nb_filters += growth_rate
 
-    # Returns the concatenated output and the updated number of filters
     return X, nb_filters
