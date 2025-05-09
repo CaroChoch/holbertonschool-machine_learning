@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 
+
 def policy(state, weight):
     """
     Compute the action probabilities (softmax) given a
