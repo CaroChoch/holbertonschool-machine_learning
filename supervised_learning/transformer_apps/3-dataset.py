@@ -14,45 +14,41 @@ class Dataset:
         - batch_size: batch size for training/validation
         - max_len: maximum number of tokens allowed per sentence
         """
-        examples, metadata = tfds.load(
-            'ted_hrlr_translate/pt_to_en',
-            with_info=True,
-            as_supervised=True
-        )
-        self.data_train = examples['train']
-        self.data_valid = examples['validation']
-        self.metadata = metadata
         self.batch_size = batch_size
         self.max_len = max_len
 
+        self.data_train = tfds.load(
+            'ted_hrlr_translate/pt_to_en', split='train', as_supervised=True)
+        self.data_valid = tfds.load(
+            'ted_hrlr_translate/pt_to_en', split='validation',
+            as_supervised=True)
+
         self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(
-            self.data_train
-        )
+            self.data_train)
 
         self.data_train = self.data_train.map(
-            self.tf_encode, num_parallel_calls=tf.data.AUTOTUNE
-        )
-        self.data_valid = self.data_valid.map(
-            self.tf_encode, num_parallel_calls=tf.data.AUTOTUNE
-        )
-
-        self.data_train = self.data_train.filter(self.filter_max_len)
+            self.tf_encode, num_parallel_calls=tf.data.AUTOTUNE)
+        self.data_train = self.data_train.filter(
+            lambda pt, en: tf.logical_and(
+                tf.size(pt) <= max_len,
+                tf.size(en) <= max_len))
         self.data_train = self.data_train.cache()
         self.data_train = self.data_train.shuffle(20000)
         self.data_train = self.data_train.padded_batch(
-            self.batch_size, padded_shapes=([None], [None])
-        )
+            self.batch_size, padded_shapes=([None], [None]))
         self.data_train = self.data_train.prefetch(
-            tf.data.experimental.AUTOTUNE
-        )
+            tf.data.experimental.AUTOTUNE)
 
-        self.data_valid = self.data_valid.filter(self.filter_max_len)
+        self.data_valid = self.data_valid.map(
+            self.tf_encode, num_parallel_calls=tf.data.AUTOTUNE)
+        self.data_valid = self.data_valid.filter(
+            lambda pt, en: tf.logical_and(
+                tf.size(pt) <= max_len,
+                tf.size(en) <= max_len))
         self.data_valid = self.data_valid.padded_batch(
-            self.batch_size, padded_shapes=([None], [None])
-        )
+            self.batch_size, padded_shapes=([None], [None]))
         self.data_valid = self.data_valid.prefetch(
-            tf.data.experimental.AUTOTUNE
-        )
+            tf.data.experimental.AUTOTUNE)
 
     def tokenize_dataset(self, data):
         """
@@ -61,7 +57,7 @@ class Dataset:
         """
         pt_sentences = []
         en_sentences = []
-        for pt, en in tfds.as_numpy(data.take(10000)):
+        for pt, en in data.take(10000).as_numpy_iterator():
             pt_sentences.append(pt.decode('utf-8'))
             en_sentences.append(en.decode('utf-8'))
 
@@ -100,12 +96,3 @@ class Dataset:
         pt_tokens.set_shape([None])
         en_tokens.set_shape([None])
         return pt_tokens, en_tokens
-
-    def filter_max_len(self, pt, en):
-        """
-        Filter out examples where pt or en exceeds max_len tokens.
-        """
-        return tf.logical_and(
-            tf.size(pt) <= self.max_len,
-            tf.size(en) <= self.max_len
-        )
