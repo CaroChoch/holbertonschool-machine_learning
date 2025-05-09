@@ -9,7 +9,10 @@ class Dataset:
     """Dataset class for Portuguese-English translations."""
 
     def __init__(self):
-        """Class constructor: load data, build tokenizers, and encode examples."""
+        """
+        Class constructor:
+        Load data, build tokenizers, and encode examples.
+        """
         # Load the TED talk translation dataset with info
         examples, metadata = tfds.load(
             'ted_hrlr_translate/pt_to_en',
@@ -31,8 +34,8 @@ class Dataset:
 
     def tokenize_dataset(self, data):
         """
-        Creates sub-word tokenizers for dataset using pretrained
-        models adapted to our data via training-from-iterator.
+        Create sub-word tokenizers for dataset using pretrained
+        models and training-from-iterator on our data.
         """
         pt_sentences = []
         en_sentences = []
@@ -40,7 +43,7 @@ class Dataset:
             pt_sentences.append(pt.decode('utf-8'))
             en_sentences.append(en.decode('utf-8'))
 
-        # Initialize pretrained tokenizers and train on our corpus
+        # Initialize pretrained tokenizers
         pretrained_pt = transformers.AutoTokenizer.from_pretrained(
             'neuralmind/bert-base-portuguese-cased', use_fast=True
         )
@@ -59,7 +62,8 @@ class Dataset:
 
     def encode(self, pt, en):
         """
-        Encode a pair of sentences into token IDs, including start and end tokens.
+        Encode a pair of sentences into token IDs,
+        including start and end tokens.
         """
         # Start and end token IDs
         pt_start = self.tokenizer_pt.vocab_size
@@ -79,7 +83,7 @@ class Dataset:
 
     def tf_encode(self, pt, en):
         """
-        TensorFlow wrapper around the `encode` method.
+        TensorFlow wrapper around the encode method.
         Returns two tf.int64 tensors with shape [None].
         """
         pt_tokens, en_tokens = tf.py_function(
