@@ -24,7 +24,7 @@ def projection_block(A_prev, filters, s=2):
     F11, F3, F12 = filters
 
     # He normal initialization is commonly used for ReLU activations
-    initializer = K.initializers.HeNormal(seed=None)
+    initializer = K.initializers.HeNormal(seed=0)
 
     # First component of main path
     conv1 = K.layers.Conv2D(
