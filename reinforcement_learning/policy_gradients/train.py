@@ -12,7 +12,7 @@ def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
     Trains a model using policy gradients.
 
     Arguments:
-    - env: initialized Gym environment
+    - env: initialized Gymnasium environment
     - nb_episodes: number of episodes for training
     - alpha: learning rate
     - gamma: discount factor
@@ -25,8 +25,9 @@ def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
     scores = []
 
     for episode in range(nb_episodes):
-        # Reset environment and reshape state for dot product
-        state = env.reset()[None, :]
+        # Reset environment (Gymnasium returns obs, info)
+        state, info = env.reset()
+        state = state[None, :]
         cumulative_gradient = 0
         episode_score = 0
         done = False
@@ -36,8 +37,9 @@ def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
             action, grad = policy_gradient(state, weights)
 
             # Take the action in the environment
-            next_state, reward, done, _ = env.step(action)
-            next_state = next_state[None, :]
+            next_obs, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
+            next_state = next_obs[None, :]
 
             # Accumulate reward for this episode
             episode_score += reward
