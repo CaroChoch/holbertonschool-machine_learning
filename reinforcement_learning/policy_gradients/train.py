@@ -28,18 +28,20 @@ def train(env, nb_episodes, alpha=0.000045,
     scores = []
 
     for episode in range(nb_episodes):
-        # Reset environment (Gymnasium returns obs and info)
+        # Reset environment (returns obs, info)
         state, info = env.reset()
         cumulative_gradient = 0
         episode_score = 0
         done = False
 
         while not done:
-            # Compute action and its gradient wrt weights
+            # Compute action and its gradient
             action, grad = policy_gradient(state, weights)
-            # Take the action (obs, reward, terminated, truncated, info)
-            next_obs, reward, terminated, truncated,
-            info = env.step(action)
+            # Take the action
+            # Gymnasium returns (obs, reward, terminated,
+            #                       truncated, info)
+            next_obs, reward, terminated, truncated, info = \
+                env.step(action)
             done = terminated or truncated
             episode_score += reward
             cumulative_gradient += grad
