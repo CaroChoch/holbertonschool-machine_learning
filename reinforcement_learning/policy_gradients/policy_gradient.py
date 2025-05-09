@@ -1,52 +1,37 @@
 #!/usr/bin/env python3
-""" computes to policy with a weight of a matrix """
 import numpy as np
 
-
-def policy(matrix, weight):
+def policy(state, weight):
     """
-    Computes to policy with a weight of a matrix
-    Arguments:
-        - matrix is a state representing the current observation of the env
-        - weight is a matrix of random weight
+    Compute the action probabilities (softmax) given a state and weight matrix.
+    Args:
+        state: np.ndarray of shape (4,), the current observation.
+        weight: np.ndarray of shape (4,2), the policy weights.
     Returns:
-        the action and the gradient (in this order)
+        probs: np.ndarray of shape (2,), probability of each action.
     """
-    # Compute the dot product of the state matrix and the weight matrix
-    z = matrix.dot(weight)
-
-    # Compute the exponential of each element in z (softmax numerator)
-    exp = np.exp(z)
-
-    # Compute the softmax probabilities by normalizing exp by its sum
-    policy = exp / np.sum(exp)
-
-    return policy
+    z = state.dot(weight)
+    exp_z = np.exp(z)
+    return exp_z / np.sum(exp_z)
 
 
 def policy_gradient(state, weight):
     """
-    Computes the Monte-Carlo policy gradient based on a state and a weight
-    Arguments:
-        - state: matrix representing the current observation of the environment
-        - weight: matrix of random weight
+    Compute the Monte-Carlo policy gradient for a single step.
+    Args:
+        state: np.ndarray of shape (4,), the current observation.
+        weight: np.ndarray of shape (4,2), the policy weights.
     Returns:
-        the action and the gradient (in this order)
+        action: int, the chosen action.
+        gradient: np.ndarray of shape (4,2), gradient of log-probability.
     """
-    # Compute policy (action probabilities) using the current state and weight
-    P = policy(state, weight)
-
-    # Choose an action based on the computed probabilities
-    action = np.random.choice(len(P[0]), p=P[0])
-
-    # Initialize gradient of the policy as a copy of the policy probabilities
-    policy_gradient_update = P.copy()
-
-    # Adjust the gradient for the chosen action by subtracting 1
-    policy_gradient_update[0, action] -= 1
-
-    # Compute the final gradient by taking the dot product of the state
-    # transpose and the policy gradient update
-    gradient = state.T.dot(policy_gradient_update)
-
-    return action, gradient
+    # 1) compute action probabilities
+    probs = policy(state, weight)
+    # 2) sample an action according to the distribution
+    action = np.random.choice(len(probs), p=probs)
+    # 3) create one-hot vector for the chosen action
+    one_hot = np.zeros_like(probs)
+    one_hot[action] = 1
+    # 4) compute gradient of log π(a|s): s ⊗ (one_hot - probs)
+    grad = outer = np.outer(state, one_hot - probs)
+    return action, grad
