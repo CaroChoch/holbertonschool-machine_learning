@@ -1,75 +1,85 @@
 #!/usr/bin/env python3
 """
-Function that builds a projection block as described in Deep Residual
-Learning for Image Recognition (2015).
+Module that defines a projection block for ResNet
 """
-from tensorflow import keras as K
+import tensorflow.keras as K
 
 
 def projection_block(A_prev, filters, s=2):
     """
-    Builds a projection block as described in Deep Residual Learning
-    for Image Recognition (2015).
+    Builds a projection block as described in "Deep Residual
+    Learning for Image Recognition (2015)"
 
-    Args:
-        A_prev: output from previous layer.
-        filters: tuple or list containing F11, F3, F12.
-        s: stride for the first convolution in main path and shortcut.
+    Arguments:
+        A_prev: output from the previous layer
+        filters: tuple or list containing F11, F3, F12, respectively
+            F11: number of filters in the first 1x1 convolution
+            F3: number of filters in the 3x3 convolution
+            F12: number of filters in the second 1x1 convolution
+                 and the 1x1 convolution in the shortcut connection
+        s: stride of the first convolution in both the main path
+           and the shortcut connection
 
     Returns:
-        Activated output of the projection block.
+        The activated output of the projection block
     """
+    # Get filter values
     F11, F3, F12 = filters
 
-    # He normal initialization est couramment utilisée pour ReLU
-    initializer = K.initializers.he_normal(seed=0)
+    # Save the input value for the shortcut connection
+    X_shortcut = A_prev
 
-    # Premier composant du chemin principal
-    conv1 = K.layers.Conv2D(
-        filters=F11,
-        kernel_size=(1, 1),
-        strides=s,
-        padding='same',
-        kernel_initializer=initializer
-    )(A_prev)
-    bn1 = K.layers.BatchNormalization(axis=3)(conv1)
-    relu1 = K.layers.Activation('relu')(bn1)
+    # Main path
+    # First component - 1x1 convolution with s stride
+    X = K.layers.Conv2D(filters=F11,
+                         kernel_size=1,
+                         strides=s,
+                         padding='same',
+                         kernel_initializer=K.initializers.he_normal(seed=0))(A_prev)
+    
+    # Batch normalization
+    X = K.layers.BatchNormalization(axis=3)(X)
+    
+    # ReLU activation
+    X = K.layers.Activation('relu')(X)
 
-    # Deuxième composant du chemin principal
-    conv2 = K.layers.Conv2D(
-        filters=F3,
-        kernel_size=(3, 3),
-        strides=(1, 1),
-        padding='same',
-        kernel_initializer=initializer
-    )(relu1)
-    bn2 = K.layers.BatchNormalization(axis=3)(conv2)
-    relu2 = K.layers.Activation('relu')(bn2)
+    # Second component - 3x3 convolution
+    X = K.layers.Conv2D(filters=F3,
+                         kernel_size=3,
+                         strides=1,
+                         padding='same',
+                         kernel_initializer=K.initializers.he_normal(seed=0))(X)
+    
+    # Batch normalization
+    X = K.layers.BatchNormalization(axis=3)(X)
+    
+    # ReLU activation
+    X = K.layers.Activation('relu')(X)
 
-    # Troisième composant du chemin principal
-    conv3 = K.layers.Conv2D(
-        filters=F12,
-        kernel_size=(1, 1),
-        strides=(1, 1),
-        padding='same',
-        kernel_initializer=initializer
-    )(relu2)
-    bn3 = K.layers.BatchNormalization(axis=3)(conv3)
+    # Third component - 1x1 convolution
+    X = K.layers.Conv2D(filters=F12,
+                         kernel_size=1,
+                         strides=1,
+                         padding='same',
+                         kernel_initializer=K.initializers.he_normal(seed=0))(X)
+    
+    # Batch normalization
+    X = K.layers.BatchNormalization(axis=3)(X)
 
-    # Connexion de raccourci
-    sc = K.layers.Conv2D(
-        filters=F12,
-        kernel_size=(1, 1),
-        strides=s,
-        padding='same',
-        kernel_initializer=initializer
-    )(A_prev)
-    bn_sc = K.layers.BatchNormalization(axis=3)(sc)
+    # Shortcut path - 1x1 convolution with s stride
+    X_shortcut = K.layers.Conv2D(filters=F12,
+                                  kernel_size=1,
+                                  strides=s,
+                                  padding='same',
+                                  kernel_initializer=K.initializers.he_normal(seed=0))(X_shortcut)
+    
+    # Batch normalization
+    X_shortcut = K.layers.BatchNormalization(axis=3)(X_shortcut)
 
-    # Addition du chemin principal et du raccourci
-    add = K.layers.Add()([bn3, bn_sc])
+    # Add the shortcut to the main path
+    X = K.layers.Add()([X, X_shortcut])
+    
+    # Final ReLU activation
+    X = K.layers.Activation('relu')(X)
 
-    # Activation finale
-    out = K.layers.Activation('relu')(add)
-
-    return out
+    return X
