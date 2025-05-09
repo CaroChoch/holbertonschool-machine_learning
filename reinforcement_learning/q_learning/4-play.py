@@ -12,7 +12,7 @@ def play(env, Q, max_steps=100):
 
     Returns:
         total_rewards (float): sum of rewards obtained during the episode
-        rendered_outputs (list[str]): list of ANSI-rendered board states at each step
+        rendered_outputs (list[str]): list of ANSI-rendered board states and actions at each step
     """
     # Reset the environment and get the initial state
     state, _ = env.reset()
@@ -28,17 +28,19 @@ def play(env, Q, max_steps=100):
     }
 
     for _ in range(max_steps):
-        # Render the current board as ANSI text
+        # Render the current board as ANSI text and record it
         board = env.render()
+        rendered_outputs.append(board)
         # Select the greedy action from the Q-table
         action = int(np.argmax(Q[state]))
-        action_name = action_mapping[action]
-        # Record the rendered board and the chosen action
-        rendered_outputs.append(f"{board}\n  ({action_name})")
+        # Record the chosen action in parentheses
+        rendered_outputs.append(f"  ({action_mapping[action]})")
+
         # Perform the action in the environment
         next_state, reward, terminated, truncated, _ = env.step(action)
         total_rewards += reward
         state = next_state
+
         # If the episode is over (goal reached or hole), render final state and exit
         if terminated or truncated:
             board = env.render()
