@@ -31,7 +31,7 @@ class Dataset:
             self.data_train
         )
 
-        # Encode datasets using tf_encode wrapper
+        # Encode datasets
         self.data_train = self.data_train.map(self.tf_encode)
         self.data_valid = self.data_valid.map(self.tf_encode)
 
@@ -52,6 +52,9 @@ class Dataset:
         self.data_valid = self.data_valid.padded_batch(
             self.batch_size,
             padded_shapes=([None], [None])
+        )
+        self.data_valid = self.data_valid.prefetch(
+            tf.data.experimental.AUTOTUNE
         )
 
     def tokenize_dataset(self, data):
