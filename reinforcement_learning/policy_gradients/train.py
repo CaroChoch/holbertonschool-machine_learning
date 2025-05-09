@@ -27,7 +27,7 @@ def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
     for episode in range(nb_episodes):
         # Reset environment (Gymnasium returns obs, info)
         state, info = env.reset()
-        state = state[None, :]
+        # cumulative_gradient will accumulate array-shaped gradients
         cumulative_gradient = 0
         episode_score = 0
         done = False
@@ -36,10 +36,9 @@ def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
             # Compute action and its gradient wrt weights
             action, grad = policy_gradient(state, weights)
 
-            # Take the action in the environment
+            # Step in the environment
             next_obs, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
-            next_state = next_obs[None, :]
 
             # Accumulate reward for this episode
             episode_score += reward
@@ -48,14 +47,14 @@ def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
             cumulative_gradient += grad
 
             # Compute TD target and TD error
-            td_target = reward + gamma * np.max(np.dot(next_state, weights)) * (not done)
-            td_error = td_target - np.dot(state, weights)[0, action]
+            td_target = reward + gamma * np.max(next_obs.dot(weights)) * (not done)
+            td_error = td_target - state.dot(weights)[action]
 
             # Update weights along the policy gradient
             weights += alpha * cumulative_gradient * td_error
 
             # Move to the next state
-            state = next_state
+            state = next_obs
 
         # Append total score for this episode
         scores.append(episode_score)
