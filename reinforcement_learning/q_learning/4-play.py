@@ -5,40 +5,45 @@ import numpy as np
 
 def play(env, Q, max_steps=100):
     """
-    Plays an episode with a trained agent.
+    Plays an episode.
 
     Arguments:
-        env: FrozenLakeEnv instance (with render_mode="ansi")
-        Q: numpy.ndarray containing the Q-table
-        max_steps: maximum number of steps in the episode
+        - env: the FrozenLakeEnv instance (with render_mode="ansi")
+        - Q: numpy.ndarray containing the Q-table
+        - max_steps: maximum number of steps in the episode
 
     Returns:
         total_rewards: float, sum of rewards obtained
-        rendered_outputs: list of str, the board and actions output
+        rendered_outputs: list of str, each board state and actions
     """
-    state = env.reset()[0]
+    state, _ = env.reset()
     total_rewards = 0
     actions = ["Left", "Down", "Right", "Up"]
     rendered_outputs = []
 
-    for _ in range(max_steps):
-        # Render and store current board state
-        board_str = env.render()
-        rendered_outputs.append(board_str)
+    def render_board(s):
+        """
+        Return ASCII board with agent at state s.
+        """
+        desc = env.desc.tolist()
+        lines = []
+        for i, row in enumerate(desc):
+            line = ''
+            for j, col in enumerate(row):
+                cell = col.decode('utf-8')
+                idx = i * len(row) + j
+                line += f'"{cell}"' if idx == s else cell
+            lines.append(line)
+        return '\n'.join(lines)
 
-        # Always exploit the Q-table
+    for _ in range(max_steps):
+        rendered_outputs.append(render_board(state))
         action = np.argmax(Q[state])
         rendered_outputs.append(f"  ({actions[action]})")
-
-        # Take action
-        new_state, reward, terminated, truncated, _ = env.step(action)
+        state, reward, terminated, truncated, _ = env.step(action)
         total_rewards += reward
-        state = new_state
-
         if terminated or truncated:
-            # Render final state and store
-            board_str = env.render()
-            rendered_outputs.append(board_str)
             break
 
+    rendered_outputs.append(render_board(state))
     return total_rewards, rendered_outputs
