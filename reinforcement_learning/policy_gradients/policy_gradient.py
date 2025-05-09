@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+""" computes to policy with a weight of a matrix """
 import numpy as np
 
 
