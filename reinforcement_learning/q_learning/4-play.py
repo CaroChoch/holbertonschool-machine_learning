@@ -5,45 +5,58 @@ import numpy as np
 
 def play(env, Q, max_steps=100):
     """
-    Plays an episode.
+    Plays an episode with a trained agent.
 
     Arguments:
-        - env: the FrozenLakeEnv instance (with render_mode="ansi")
+        - env: FrozenLakeEnv instance (with render_mode="ansi")
         - Q: numpy.ndarray containing the Q-table
         - max_steps: maximum number of steps in the episode
 
     Returns:
         total_rewards: float, sum of rewards obtained
-        rendered_outputs: list of str, each board state and actions
+        rendered_outputs: list of str, each board row or action line
     """
     state, _ = env.reset()
     total_rewards = 0
     actions = ["Left", "Down", "Right", "Up"]
     rendered_outputs = []
+    # Capture map description once
+    desc = env.desc.tolist()
 
-    def render_board(s):
+    def board_lines(s):
         """
-        Return ASCII board with agent at state s.
+        Return list of ASCII strings for each row with agent at state s.
         """
-        desc = env.desc.tolist()
         lines = []
         for i, row in enumerate(desc):
-            line = ''
+            line = ""
             for j, col in enumerate(row):
-                cell = col.decode('utf-8')
+                cell = col.decode("utf-8")
                 idx = i * len(row) + j
-                line += f'"{cell}"' if idx == s else cell
+                if idx == s:
+                    line += f'"{cell}"'
+                else:
+                    line += cell
             lines.append(line)
-        return '\n'.join(lines)
+        return lines
 
     for _ in range(max_steps):
-        rendered_outputs.append(render_board(state))
+        # Append current board rows
+        for ln in board_lines(state):
+            rendered_outputs.append(ln)
+        # Choose best action
         action = np.argmax(Q[state])
+        # Append action line
         rendered_outputs.append(f"  ({actions[action]})")
-        state, reward, terminated, truncated, _ = env.step(action)
+        # Step
+        next_state, reward, terminated, truncated, _ = env.step(action)
         total_rewards += reward
+        state = next_state
         if terminated or truncated:
             break
 
-    rendered_outputs.append(render_board(state))
+    # Append final board rows
+    for ln in board_lines(state):
+        rendered_outputs.append(ln)
+
     return total_rewards, rendered_outputs
