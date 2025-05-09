@@ -11,11 +11,12 @@ def q_init(env):
     Returns:
         Q-table as a numpy.ndarray of zeros
     """
-    # Extract the number of states and actions from the environment
-    num_states = env.observation_space.n
-    num_actions = env.action_space.n
+    # Extract the number of states and actions from the environment,
+    # avec fallback sur nS / nA si besoin
+    num_states = getattr(env.observation_space, 'n', getattr(env, 'nS', None))
+    num_actions = getattr(env.action_space,      'n', getattr(env, 'nA', None))
 
-    # Initialize the Q-table with zeros
+    # Initialise la Q-table avec des zéros
     q_table = np.zeros((num_states, num_actions))
 
     return q_table
