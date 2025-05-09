@@ -5,12 +5,16 @@ import numpy as np
 
 def play(env, Q, max_steps=100):
     """
-    plays an episode
+    Plays an episode.
+
     Arguments:
         - env: the FrozenLakeEnv instance
         - Q: numpy.ndarray containing the Q-table
-        - max_steps: the maximum number of steps in the episode
-    Returns: the total rewards for the episode and a list of rendered outputs representing each step.
+        - max_steps: maximum number of steps in the episode
+
+    Returns:
+        total rewards for the episode and a list of rendered outputs
+        for each step.
     """
     state, _ = env.reset()
     total_rewards = 0
@@ -24,22 +28,21 @@ def play(env, Q, max_steps=100):
         desc = env.desc.tolist()
         lines = []
         for i, row in enumerate(desc):
-            line = ''
+            line = ""
             for j, col in enumerate(row):
-                cell = col.decode('utf-8')
+                cell = col.decode("utf-8")
                 idx = i * len(row) + j
                 if idx == s:
                     line += f'"{cell}"'
                 else:
                     line += cell
             lines.append(line)
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     for _ in range(max_steps):
         action = np.argmax(Q[state])
         next_state, reward, terminated, truncated, info = env.step(action)
 
-        # capture current board and action
         rendered_outputs.append(render_board(state))
         rendered_outputs.append(f"  ({actions[action]})")
 
@@ -48,6 +51,5 @@ def play(env, Q, max_steps=100):
         if terminated:
             break
 
-    # capture final state
     rendered_outputs.append(render_board(state))
     return total_rewards, rendered_outputs
