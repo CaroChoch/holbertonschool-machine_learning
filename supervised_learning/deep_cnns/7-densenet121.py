@@ -30,7 +30,7 @@ def densenet121(growth_rate=32, compression=1.0):
 
     # Initial batch norm + ReLU activation
     x = K.layers.BatchNormalization()(inputs)
-    x = K.layers.Activation('relu')(x)
+    x = K.layers.ReLU()(x)
 
     # Initial convolution: 7x7 kernel, stride 2, filters = 2 * growth_rate
     num_filters = growth_rate * 2
@@ -46,13 +46,13 @@ def densenet121(growth_rate=32, compression=1.0):
     x = K.layers.MaxPooling2D(pool_size=3, strides=2, padding='same')(x)
 
     # Add dense blocks with transition layers in between
-    x, num_filters = dense_block(x, num_filters, growth_rate, 6)   # Dense block 1
-    x, num_filters = transition_layer(x, num_filters, compression) # Transition 1
-    x, num_filters = dense_block(x, num_filters, growth_rate, 12)  # Dense block 2
-    x, num_filters = transition_layer(x, num_filters, compression) # Transition 2
-    x, num_filters = dense_block(x, num_filters, growth_rate, 24)  # Dense block 3
-    x, num_filters = transition_layer(x, num_filters, compression) # Transition 3
-    x, num_filters = dense_block(x, num_filters, growth_rate, 16)  # Dense block 4
+    x, num_filters = dense_block(x, num_filters, growth_rate, 6)
+    x, num_filters = transition_layer(x, num_filters, compression)
+    x, num_filters = dense_block(x, num_filters, growth_rate, 12)
+    x, num_filters = transition_layer(x, num_filters, compression)
+    x, num_filters = dense_block(x, num_filters, growth_rate, 24)
+    x, num_filters = transition_layer(x, num_filters, compression)
+    x, num_filters = dense_block(x, num_filters, growth_rate, 16)
 
     # Global average pooling to create feature vector
     x = K.layers.AveragePooling2D(pool_size=7, padding='same')(x)
