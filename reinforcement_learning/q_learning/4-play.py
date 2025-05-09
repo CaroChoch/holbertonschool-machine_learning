@@ -2,6 +2,8 @@
 """
 Module to let the trained agent play an episode on FrozenLake.
 """
+
+
 import numpy as np
 
 
@@ -39,18 +41,18 @@ def play(env, Q, max_steps=100):
         action = int(np.argmax(Q[state]))
         action_name = action_mapping[action]
 
-        # Record the chosen action
+        # Record the chosen action first
         rendered_outputs.append(f"  ({action_name})")
 
         # Take the action in the environment
         next_state, reward, done, truncated, _ = env.step(action)
 
+        # Render and capture the new state after the action
+        rendered_outputs.append(env.render())
+
         # Update total rewards and state
         total_rewards += reward
         state = next_state
-
-        # Render and capture the new state
-        rendered_outputs.append(env.render())
 
         # End episode if terminated or truncated
         if done or truncated:
