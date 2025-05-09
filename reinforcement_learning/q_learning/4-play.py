@@ -59,4 +59,8 @@ def play(env, Q, max_steps=100):
     for ln in board_lines(state):
         rendered_outputs.append(ln)
 
+    # Ensure there's a newline at the end of the output
+    if rendered_outputs and not rendered_outputs[-1].endswith('\n'):
+        rendered_outputs[-1] += '\n'
+
     return total_rewards, rendered_outputs
