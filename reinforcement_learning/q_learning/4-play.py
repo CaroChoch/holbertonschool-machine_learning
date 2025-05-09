@@ -10,58 +10,44 @@ def play(env, Q, max_steps=100):
         - env: the FrozenLakeEnv instance
         - Q: numpy.ndarray containing the Q-table
         - max_steps: the maximum number of steps in the episode
-    Returns: the total rewards for the episode and a list of rendered outputs
+    Returns: the total rewards for the episode and a list of rendered outputs representing each step.
     """
-    state, _ = env.reset()  # Reset the environment for a new episode
-    total_rewards = 0  # Initialize total rewards for the episode
+    state, _ = env.reset()
+    total_rewards = 0
     actions = ["Left", "Down", "Right", "Up"]
     rendered_outputs = []
 
-    def print_board(state):
+    def render_board(s):
         """
-        Prints the current state of the board with the agent's position
-        highlighted.
-
-        Arguments:
-            - state: The current state (position) of the agent in the
-              environment.
-        Returns: the string representation of the board
+        Return ASCII representation of the board with the agent at state s.
         """
         desc = env.desc.tolist()
-        board = ""
+        lines = []
         for i, row in enumerate(desc):
+            line = ''
             for j, col in enumerate(row):
-                index = i * len(row) + j
                 cell = col.decode('utf-8')
-                if index == state:
-                    board += f"`{cell}`"
+                idx = i * len(row) + j
+                if idx == s:
+                    line += f'"{cell}"'
                 else:
-                    board += cell
-            board += "\n"
-        print(board, end='')
-        return board
+                    line += cell
+            lines.append(line)
+        return '\n'.join(lines)
 
-    for step in range(max_steps):
-        # Always exploit the Q-table
-        action = np.argmax(Q[state, :])
+    for _ in range(max_steps):
+        action = np.argmax(Q[state])
         next_state, reward, terminated, truncated, info = env.step(action)
 
-        # Display and capture the current board state
-        board_str = print_board(state)
-        rendered_outputs.append(board_str)
+        # capture current board and action
+        rendered_outputs.append(render_board(state))
+        rendered_outputs.append(f"  ({actions[action]})")
 
-        # Display and capture the action taken
-        action_str = f"  ({actions[action]})\n"
-        print(action_str, end='')
-        rendered_outputs.append(action_str)
-
-        total_rewards += reward  # Accumulate the rewards
-        state = next_state  # Move to the next state
+        total_rewards += reward
+        state = next_state
         if terminated:
             break
 
-    # Print and capture the final state of the board
-    board_str = print_board(state)
-    rendered_outputs.append(board_str)
-
+    # capture final state
+    rendered_outputs.append(render_board(state))
     return total_rewards, rendered_outputs
