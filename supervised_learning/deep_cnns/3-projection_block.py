@@ -23,54 +23,57 @@ def projection_block(A_prev, filters, s=2):
     """
     F11, F3, F12 = filters
 
-    # First component of main path
+    # He normal initialization est couramment utilisée pour ReLU
+    initializer = K.initializers.HeNormal(seed=0)
+
+    # Premier composant du chemin principal
     conv1 = K.layers.Conv2D(
         filters=F11,
         kernel_size=(1, 1),
         strides=s,
         padding='same',
-        kernel_initializer=K.initializers.HeNormal(seed=0)
+        kernel_initializer=initializer
     )(A_prev)
     batch_normalization_1 = K.layers.BatchNormalization(axis=3)(conv1)
     relu_1 = K.layers.Activation('relu')(batch_normalization_1)
 
-    # Second component of main path
+    # Deuxième composant du chemin principal
     conv2 = K.layers.Conv2D(
         filters=F3,
         kernel_size=(3, 3),
         strides=(1, 1),
         padding='same',
-        kernel_initializer=K.initializers.HeNormal(seed=0)
+        kernel_initializer=initializer
     )(relu_1)
     batch_normalization_2 = K.layers.BatchNormalization(axis=3)(conv2)
     relu_2 = K.layers.Activation('relu')(batch_normalization_2)
 
-    # Third component of main path
+    # Troisième composant du chemin principal
     conv3 = K.layers.Conv2D(
         filters=F12,
         kernel_size=(1, 1),
         strides=(1, 1),
         padding='same',
-        kernel_initializer=K.initializers.HeNormal(seed=0)
+        kernel_initializer=initializer
     )(relu_2)
     batch_normalization_3 = K.layers.BatchNormalization(axis=3)(conv3)
 
-    # shortcut connection
+    # Connexion de raccourci
     shortcut_connection = K.layers.Conv2D(
         filters=F12,
         kernel_size=(1, 1),
         strides=s,
         padding='same',
-        kernel_initializer=K.initializers.HeNormal(seed=0)
+        kernel_initializer=initializer
     )(A_prev)
-    batch_normalization_shortcut = K.layers.BatchNormalization(
-        axis=3)(shortcut_connection)
+    batch_normalization_shortcut = K.layers.BatchNormalization(axis=3)(shortcut_connection)
 
-    # Add the shortcut value to the output
+    # Addition du chemin principal et du raccourci
     sum_result = K.layers.Add()(
-        [batch_normalization_3, batch_normalization_shortcut])
+        [batch_normalization_3, batch_normalization_shortcut]
+    )
 
-    # Activate the final output
-    activated_output = K.layers.Activation(activation='relu')(sum_result)
+    # Activation finale
+    activated_output = K.layers.Activation('relu')(sum_result)
 
     return activated_output
