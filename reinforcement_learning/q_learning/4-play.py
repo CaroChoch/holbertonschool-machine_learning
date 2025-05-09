@@ -23,7 +23,8 @@ def play(env, Q, max_steps=100):
 
     def render_board(s):
         """
-        Return ASCII representation of the board with the agent at state s.
+        Return ASCII representation of the board with the agent at
+        state s.
         """
         desc = env.desc.tolist()
         lines = []
@@ -51,5 +52,8 @@ def play(env, Q, max_steps=100):
         if terminated:
             break
 
+    # capture final state
     rendered_outputs.append(render_board(state))
+    # add blank line to match expected output
+    rendered_outputs.append("")
     return total_rewards, rendered_outputs
